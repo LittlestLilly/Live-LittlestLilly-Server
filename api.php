@@ -95,8 +95,12 @@ if ($action === 'posts' && $method === 'GET') {
     $posts = readData($postsFile);
     $comments = readData($commentsFile);
     $feed = [];
+    $isAdmin = isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin';
     
     foreach (array_reverse($posts) as $post) {
+        // Hide drafts from regular users
+        if (isset($post['isHidden']) && $post['isHidden'] && !$isAdmin) continue;
+        
         $postComments = array_values(array_filter($comments, function($c) use ($post) { return $c['postId'] == $post['id']; }));
         $post['comments'] = $postComments;
         $feed[] = $post;
@@ -109,7 +113,13 @@ if ($action === 'recent_posts' && $method === 'GET') {
     $posts = readData($postsFile);
     $comments = readData($commentsFile);
     $feed = [];
-    $recent = array_slice(array_reverse($posts), 0, 5);
+    $isAdmin = isset($_SESSION['user']) && $_SESSION['user']['role'] === 'admin';
+    
+    // Filter out hidden posts before grabbing the top 5
+    $visiblePosts = array_filter(array_reverse($posts), function($post) use ($isAdmin) {
+        return !(isset($post['isHidden']) && $post['isHidden'] && !$isAdmin);
+    });
+    $recent = array_slice($visiblePosts, 0, 5);
     
     foreach ($recent as $post) {
         $postComments = array_values(array_filter($comments, function($c) use ($post) { return $c['postId'] == $post['id']; }));
@@ -125,10 +135,58 @@ if ($action === 'posts' && $method === 'POST') {
         http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
     }
     $posts = readData($postsFile);
-    $newPost = ["id" => time(), "title" => $input['title'], "content" => $input['content'], "author" => $_SESSION['user']['username']];
+    $newPost = [
+        "id" => time(), 
+        "title" => $input['title'], 
+        "content" => $input['content'], 
+        "author" => $_SESSION['user']['username'],
+        "isHidden" => false // Default new posts to visible
+    ];
     $posts[] = $newPost;
     writeData($postsFile, $posts);
     http_response_code(201); echo json_encode($newPost); exit;
+}
+
+// --- NEW: Edit or Hide Post ---
+if ($action === 'posts' && $method === 'PUT') {
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
+    }
+    $posts = readData($postsFile);
+    $postId = (int)$input['id'];
+    
+    foreach ($posts as &$post) {
+        if ($post['id'] === $postId) {
+            if (isset($input['title'])) $post['title'] = $input['title'];
+            if (isset($input['content'])) $post['content'] = $input['content'];
+            if (isset($input['isHidden'])) $post['isHidden'] = $input['isHidden'];
+            break;
+        }
+    }
+    writeData($postsFile, $posts);
+    echo json_encode(["message" => "Post updated! ✨"]);
+    exit;
+}
+
+// --- NEW: Delete Post ---
+if ($action === 'posts' && $method === 'DELETE') {
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
+    }
+    $posts = readData($postsFile);
+    $idToDelete = (int)$_GET['id'];
+    
+    // Remove the post
+    $posts = array_values(array_filter($posts, function($p) use ($idToDelete) { return $p['id'] !== $idToDelete; }));
+    writeData($postsFile, $posts);
+    
+    // Clean up matching comments
+    $comments = readData($commentsFile);
+    $comments = array_values(array_filter($comments, function($c) use ($idToDelete) { return $c['postId'] !== $idToDelete; }));
+    writeData($commentsFile, $comments);
+
+    echo json_encode(["message" => "Post vanished! 💨"]);
+    exit;
 }
 
 if ($action === 'comments' && $method === 'POST') {

@@ -1,6 +1,7 @@
 // Store user info locally
 let currentUser = JSON.parse(localStorage.getItem('bubbly_user')) || null;
 let isLoginMode = false;
+let editingPostId = null; // Tracks if we are editing an existing post
 
 // --- Initialize Page ---
 updateUserUI();
@@ -93,13 +94,11 @@ async function loadPosts() {
   const res = await fetch(apiEndpoint);
   const posts = await res.json();
   
-  // Only update the screen if the HTML needs it (prevents flickering during polling)
   let newHTML = '';
   posts.forEach(post => {
     let commentsHTML = post.comments.map(c => {
       const deleteBtn = (currentUser && currentUser.role === 'admin') 
-        ? `<button class="delete-btn" onclick="deleteComment(${c.id})">Delete</button>` 
-        : '';
+        ? `<button class="delete-btn" onclick="deleteComment(${c.id})">Delete</button>` : '';
 
       return `
       <div class="bubble" style="background-color: ${c.color}">
@@ -108,10 +107,26 @@ async function loadPosts() {
       </div>`;
     }).join('');
 
+    // Inject Admin Controls
+    let adminControls = '';
+    const isHidden = post.isHidden || false;
+    if (currentUser && currentUser.role === 'admin') {
+      const hideBtnText = isHidden ? '👁️ Unhide' : '👻 Hide';
+      adminControls = `
+      <div style="background: rgba(255,172,209,0.2); padding: 8px; border-radius: 15px; margin-bottom: 10px; display: flex; gap: 10px;">
+        <button onclick="editPost(${post.id})" class="tiny-btn">✏️ Edit</button>
+        <button onclick="toggleHidePost(${post.id}, ${isHidden})" class="tiny-btn">${hideBtnText}</button>
+        <button onclick="deletePost(${post.id})" class="tiny-btn delete-btn" style="float:none;">🗑️ Delete</button>
+      </div>`;
+    }
+
+    const draftTag = isHidden ? '<span style="color: red;">[DRAFT]</span> ' : '';
+
     newHTML += `
-    <article class="blog-card">
-      <h2>${post.title}</h2>
-      <p>${post.content}</p>
+    <article class="blog-card" id="post-${post.id}">
+      ${adminControls}
+      <h2 id="title-${post.id}">${draftTag}${post.title}</h2>
+      <p id="content-${post.id}">${post.content}</p>
       <small>By ${post.author}</small>
       <div class="comment-section">
         <h4>✨ Comments ✨</h4>
@@ -124,9 +139,35 @@ async function loadPosts() {
     </article>`;
   });
   
-  if (feed.innerHTML !== newHTML) {
-      feed.innerHTML = newHTML;
-  }
+  if (feed.innerHTML !== newHTML) feed.innerHTML = newHTML;
+}
+
+// --- New Admin Content Functions ---
+function editPost(postId) {
+  const titleText = document.getElementById(`title-${postId}`).innerText.replace('[DRAFT] ', '');
+  const contentText = document.getElementById(`content-${postId}`).innerText;
+  
+  document.getElementById('new-post-title').value = titleText;
+  document.getElementById('new-post-content').value = contentText;
+  
+  editingPostId = postId; // Lock the system into "Edit Mode"
+  document.getElementById('publish-btn').innerText = "Update Magic! ✨";
+  window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll up to the box
+}
+
+async function toggleHidePost(postId, currentStatus) {
+  await fetch('api.php?action=posts', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: postId, isHidden: !currentStatus })
+  });
+  loadPosts();
+}
+
+async function deletePost(postId) {
+  if (!confirm("Are you sure you want to zap this post entirely? ⚡")) return;
+  await fetch(`api.php?action=posts&id=${postId}`, { method: 'DELETE' });
+  loadPosts();
 }
 
 async function publishPost() {
@@ -136,17 +177,28 @@ async function publishPost() {
   const content = document.getElementById('new-post-content').value;
   if (!title || !content) return alert("Don't forget the title and content!");
 
-  const res = await fetch('api.php?action=posts', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, content })
-  });
-
-  if (res.ok) {
-    document.getElementById('new-post-title').value = '';
-    document.getElementById('new-post-content').value = '';
-    loadPosts();
+  if (editingPostId) {
+    // If we are editing, send a PUT request to update the existing post
+    await fetch('api.php?action=posts', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editingPostId, title, content })
+    });
+    editingPostId = null; // Exit "Edit Mode"
+    const pubBtn = document.getElementById('publish-btn');
+    if(pubBtn) pubBtn.innerText = "Publish Magic! 🪄";
+  } else {
+    // If not editing, create a brand new post
+    await fetch('api.php?action=posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, content })
+    });
   }
+
+  document.getElementById('new-post-title').value = '';
+  document.getElementById('new-post-content').value = '';
+  loadPosts();
 }
 
 async function postComment(postId) {
