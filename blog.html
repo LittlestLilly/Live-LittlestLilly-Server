@@ -6,28 +6,28 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="notification-banner" class="hidden">🌟 ✨ Lilly just posted a new update! ✨ 🌟</div>
+  <div id="notification-banner" class="hidden">Lilly just posted a new update!</div>
 
   <header>
-    <h1>The Magic Blog Vault 📚</h1>
+    <h1>The Magic Blog Vault</h1>
     <nav class="bubbly-nav">
-      <a href="index.html">🏠 Home</a>
-      <a href="blog.html">📝 All Posts</a>
-      <a href="forums.html">💬 Forums</a>
-      <a href="contact.html">💌 Contact</a>
+      <a href="index.html">Home</a>
+      <a href="blog.html">All Posts</a>
+      <a href="forums.html">Forums</a>
+      <a href="contact.html">Contact</a>
     </nav>
     <div id="user-status" style="margin-top: 15px; font-weight: bold;">
-      <span id="welcome-text">Hello, Guest! 🌟</span>
+      <span id="welcome-text">Hello, Guest!</span>
       <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
-      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">🎨 Profile</button>
-      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
+      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">Profile</button>
+      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout</button>
     </div>
   </header> 
   
   <div id="auth-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeAuthModal()">✖️</span>
-      <h2 id="auth-title">✨ Join the Magic! ✨</h2>
+      <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+      <h2 id="auth-title">Join the Magic!</h2>
       <div id="auth-form-container">
         <input type="text" id="auth-username" placeholder="Pick a Username">
         <input type="password" id="auth-password" placeholder="Secret Password">
@@ -35,7 +35,7 @@
           <input type="email" id="auth-email" placeholder="Your Email">
           <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
         </div>
-        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
+        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go!</button>
       </div>
       <p style="text-align: center; margin-top: 15px;"><a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a></p>
     </div>
@@ -43,11 +43,11 @@
 
   <div id="profile-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeProfileModal()">✖️</span>
-      <h2>🎨 Customize Profile 🎨</h2>
+      <span class="close-btn" onclick="closeProfileModal()">&times;</span>
+      <h2>Customize Profile</h2>
       <p>Pick a new color for your chat bubbles!</p>
       <input type="color" id="profile-color-picker" value="#FFF380" style="width: 100%; height: 50px; cursor: pointer; border-radius: 10px; border: 3px solid var(--dark-text);">
-      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color! ✨</button>
+      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color!</button>
     </div>
   </div>
 
@@ -56,7 +56,7 @@
       <h3>Write a New Post</h3>
       <input type="text" id="new-post-title" placeholder="Post Title...">
       <textarea id="new-post-content" placeholder="What's on your mind?"></textarea>
-      <button id="publish-btn" onclick="publishPost()">Publish Magic! 🪄</button>
+      <button id="publish-btn" onclick="publishPost()">Publish Magic!</button>
     </section>
 
     <section id="blog-feed"></section>

@@ -7,25 +7,25 @@
 </head>
 <body>
   <header>
-    <h1>Let's Connect! 💖</h1>
+    <h1>Let's Connect!</h1>
     <nav class="bubbly-nav">
-      <a href="index.html">🏠 Home</a>
-      <a href="blog.html">📝 All Posts</a>
-      <a href="forums.html">💬 Forums</a>
-      <a href="contact.html">💌 Contact</a>
+      <a href="index.html">Home</a>
+      <a href="blog.html">All Posts</a>
+      <a href="forums.html">Forums</a>
+      <a href="contact.html">Contact</a>
     </nav>
     <div id="user-status" style="margin-top: 15px; font-weight: bold;">
-      <span id="welcome-text">Hello, Guest! 🌟</span>
+      <span id="welcome-text">Hello, Guest!</span>
       <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
-      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">🎨 Profile</button>
-      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
+      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">Profile</button>
+      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout</button>
     </div>
   </header>
 
   <div id="auth-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeAuthModal()">✖️</span>
-      <h2 id="auth-title">✨ Join the Magic! ✨</h2>
+      <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+      <h2 id="auth-title">Join the Magic!</h2>
       <div id="auth-form-container">
         <input type="text" id="auth-username" placeholder="Pick a Username">
         <input type="password" id="auth-password" placeholder="Secret Password">
@@ -33,7 +33,7 @@
           <input type="email" id="auth-email" placeholder="Your Email">
           <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
         </div>
-        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
+        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go!</button>
       </div>
       <p style="text-align: center; margin-top: 15px;"><a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a></p>
     </div>
@@ -41,24 +41,24 @@
 
   <div id="profile-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeProfileModal()">✖️</span>
-      <h2>🎨 Customize Profile 🎨</h2>
+      <span class="close-btn" onclick="closeProfileModal()">&times;</span>
+      <h2>Customize Profile</h2>
       <p>Pick a new color for your chat bubbles!</p>
       <input type="color" id="profile-color-picker" value="#FFF380" style="width: 100%; height: 50px; cursor: pointer; border-radius: 10px; border: 3px solid var(--dark-text);">
-      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color! ✨</button>
+      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color!</button>
     </div>
   </div>
 
   <main>
     <section id="contact-lilly" class="blog-card contact-card">
       <img src="avatar.png" alt="Lilly's Avatar" class="profile-avatar">
-      <h2>✨ Say Hi to Lilly! ✨</h2>
+      <h2>Say Hi to Lilly!</h2>
       <div class="socials">
         <h3>Find me on:</h3>
         <ul>
-          <li>📸 <a href="#">Instagram</a></li>
-          <li>🎮 <a href="#">Discord</a></li>
-          <li>🐦 <a href="#">Twitter/X</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">Discord</a></li>
+          <li><a href="#">Twitter/X</a></li>
         </ul>
       </div>
       <hr />
@@ -67,7 +67,7 @@
         <input type="text" placeholder="Your Name" class="childish-input">
         <input type="email" placeholder="Your Email" class="childish-input">
         <textarea placeholder="Write your message here..."></textarea>
-        <button class="btn-send" onclick="alert('Magic Mail Sent! 💌')">Send Magic Mail! 💌</button>
+        <button class="btn-send" onclick="alert('Magic Mail Sent!')">Send Magic Mail!</button>
       </div>
     </section>
   </main>

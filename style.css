@@ -38,7 +38,7 @@ h1, h2, h3 { margin-top: 0; }
 .hidden { display: none; }
 
 main {
-  max-width: 800px; /* Widened for embeds */
+  max-width: 800px;
   width: 100%;
 }
 
@@ -195,7 +195,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 }
 
 .delete-btn {
-  background-color: #ff6b6b; /* Soft Red */
+  background-color: #ff6b6b;
   color: white;
   border: 2px solid var(--dark-text);
   border-radius: 10px;

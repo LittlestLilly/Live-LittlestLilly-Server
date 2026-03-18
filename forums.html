@@ -2,30 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Lilly's Bubbly Forums 🌈</title>
+  <title>Lilly's Bubbly Forums</title>
   <link rel="stylesheet" href="style.css">  
 </head>
 <body>
   <header>
-    <h1>The Bubbly Community Forums! 💬</h1>
+    <h1>The Bubbly Community Forums!</h1>
     <nav class="bubbly-nav">
-      <a href="index.html">🏠 Home</a>
-      <a href="blog.html">📝 All Posts</a>
-      <a href="forums.html">💬 Forums</a>
-      <a href="contact.html">💌 Contact</a>
+      <a href="index.html">Home</a>
+      <a href="blog.html">All Posts</a>
+      <a href="forums.html">Forums</a>
+      <a href="contact.html">Contact</a>
     </nav>
     <div id="user-status" style="margin-top: 15px; font-weight: bold;">
-      <span id="welcome-text">Hello, Guest! 🌟</span>
+      <span id="welcome-text">Hello, Guest!</span>
       <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
-      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">🎨 Profile</button>
-      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
+      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">Profile</button>
+      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout</button>
     </div>
   </header> 
   
   <div id="auth-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeAuthModal()">✖️</span>
-      <h2 id="auth-title">✨ Join the Magic! ✨</h2>
+      <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+      <h2 id="auth-title">Join the Magic!</h2>
       <div id="auth-form-container">
         <input type="text" id="auth-username" placeholder="Pick a Username">
         <input type="password" id="auth-password" placeholder="Secret Password">
@@ -33,7 +33,7 @@
           <input type="email" id="auth-email" placeholder="Your Email">
           <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
         </div>
-        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
+        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go!</button>
       </div>
       <p style="text-align: center; margin-top: 15px;"><a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a></p>
     </div>
@@ -41,21 +41,20 @@
 
   <div id="profile-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeProfileModal()">✖️</span>
-      <h2>🎨 Customize Profile 🎨</h2>
+      <span class="close-btn" onclick="closeProfileModal()">&times;</span>
+      <h2>Customize Profile</h2>
       <p>Pick a new color for your chat bubbles!</p>
       <input type="color" id="profile-color-picker" value="#FFF380" style="width: 100%; height: 50px; cursor: pointer; border-radius: 10px; border: 3px solid var(--dark-text);">
-      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color! ✨</button>
+      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color!</button>
     </div>
   </div>
 
   <main>
     <section class="blog-card">
-      <h2 style="text-align: center;">Welcome to the Message Boards! ✨</h2>
+      <h2 style="text-align: center;">Welcome to the Message Boards!</h2>
       <p style="text-align: center;">Jump into a category below to start chatting with friends!</p>
       
       <div class="forum-category">
-        <div class="category-icon">👋</div>
         <div class="category-info">
           <h3>The Welcome Mat</h3>
           <p>Say hi, introduce yourself, and meet your new friends!</p>
@@ -63,7 +62,6 @@
         <div class="category-stats">12 Topics</div>
       </div>
       <div class="forum-category">
-        <div class="category-icon">☕</div>
         <div class="category-info">
           <h3>General Chat & Daily Life</h3>
           <p>Discuss your day, grab a coffee, and chat about whatever is on your mind.</p>
@@ -71,7 +69,6 @@
         <div class="category-stats">85 Topics</div>
       </div>
       <div class="forum-category">
-        <div class="category-icon">💖</div>
         <div class="category-info">
           <h3>Support & Big Feelings</h3>
           <p>A safe, supportive space to talk through tough days and seek advice.</p>
@@ -79,7 +76,6 @@
         <div class="category-stats">42 Topics</div>
       </div>
       <div class="forum-category">
-        <div class="category-icon">📚</div>
         <div class="category-info">
           <h3>Story Time & Creativity</h3>
           <p>Share your creative writing, fiction stories, and artistic projects!</p>
@@ -87,7 +83,6 @@
         <div class="category-stats">28 Topics</div>
       </div>
       <div class="forum-category">
-        <div class="category-icon">🎮</div>
         <div class="category-info">
           <h3>The Toy Box & Gaming</h3>
           <p>Talk about your favorite video games, web dev projects, and toy collecting!</p>
@@ -95,7 +90,6 @@
         <div class="category-stats">56 Topics</div>
       </div>
       <div class="forum-category">
-        <div class="category-icon">🗺️</div>
         <div class="category-info">
           <h3>Local Meetups & Events</h3>
           <p>Planning to meet up? Discuss Georgetown events, local coffee shop trips, and convention prep!</p>
@@ -107,16 +101,16 @@
     <section class="admin-box hidden" id="admin-thread-box">
       <h3>Create a New Forum Thread</h3>
       <select id="new-thread-category" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 15px; border: 3px solid var(--accent-pink); font-family: inherit; font-size: 16px;">
-        <option value="👋 The Welcome Mat">👋 The Welcome Mat</option>
-        <option value="☕ General Chat & Daily Life">☕ General Chat & Daily Life</option>
-        <option value="💖 Support & Big Feelings">💖 Support & Big Feelings</option>
-        <option value="📚 Story Time & Creativity">📚 Story Time & Creativity</option>
-        <option value="🎮 The Toy Box & Gaming">🎮 The Toy Box & Gaming</option>
-        <option value="🗺️ Local Meetups & Events">🗺️ Local Meetups & Events</option>
+        <option value="The Welcome Mat">The Welcome Mat</option>
+        <option value="General Chat & Daily Life">General Chat & Daily Life</option>
+        <option value="Support & Big Feelings">Support & Big Feelings</option>
+        <option value="Story Time & Creativity">Story Time & Creativity</option>
+        <option value="The Toy Box & Gaming">The Toy Box & Gaming</option>
+        <option value="Local Meetups & Events">Local Meetups & Events</option>
       </select>
       <input type="text" id="new-thread-title" placeholder="Thread Title...">
       <textarea id="new-thread-content" placeholder="Kick off the conversation..."></textarea>
-      <button onclick="createThread()">Post Thread! 🪄</button>
+      <button onclick="createThread()">Post Thread!</button>
     </section>
 
     <section id="forum-feed"></section>

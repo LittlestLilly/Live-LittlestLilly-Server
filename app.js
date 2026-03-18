@@ -24,7 +24,7 @@ function updateUserUI() {
   const colorPicker = document.getElementById('profile-color-picker');
 
   if (currentUser) {
-    welcomeText.innerText = `Hello, ${currentUser.username}! ${currentUser.role === 'admin' ? '👑' : '🌟'}`;
+    welcomeText.innerText = `Hello, ${currentUser.username}! ${currentUser.role === 'admin' ? '(Admin)' : ''}`;
     btnLogin.classList.add('hidden');
     btnProfile.classList.remove('hidden');
     btnLogout.classList.remove('hidden');
@@ -36,7 +36,7 @@ function updateUserUI() {
         else adminThreadBox.classList.add('hidden');
     }
   } else {
-    welcomeText.innerText = `Hello, Guest! 🌟`;
+    welcomeText.innerText = `Hello, Guest!`;
     btnLogin.classList.remove('hidden');
     btnProfile.classList.add('hidden');
     btnLogout.classList.add('hidden');
@@ -52,7 +52,7 @@ function closeProfileModal() { document.getElementById('profile-modal').classLis
 
 function toggleAuthMode() {
   isLoginMode = !isLoginMode;
-  document.getElementById('auth-title').innerText = isLoginMode ? "✨ Welcome Back! ✨" : "✨ Join the Magic! ✨";
+  document.getElementById('auth-title').innerText = isLoginMode ? "Welcome Back!" : "Join the Magic!";
   document.getElementById('auth-toggle-link').innerText = isLoginMode ? "Need an account? Register!" : "Already a member? Log in!";
   if (isLoginMode) document.getElementById('register-fields').classList.add('hidden');
   else document.getElementById('register-fields').classList.remove('hidden');
@@ -65,7 +65,7 @@ async function submitAuth() {
   const email = document.getElementById('auth-email').value;
   const secretCode = document.getElementById('auth-secret').value;
 
-  if (!username || !password) return alert("Username and Password are required! 🛑");
+  if (!username || !password) return alert("Username and Password are required!");
 
   const endpoint = isLoginMode ? 'api.php?action=login' : 'api.php?action=register';
   const body = isLoginMode ? { username, password } : { username, password, email, secretCode };
@@ -98,7 +98,7 @@ async function logoutUser() {
   updateUserUI();
   loadPosts();
   loadThreads();
-  alert("Logged out safely! 💨");
+  alert("Logged out safely!");
 }
 
 async function saveProfileColor() {
@@ -114,7 +114,7 @@ async function saveProfileColor() {
     closeProfileModal();
     loadPosts();
     loadThreads();
-    alert("Profile Color Updated! ✨");
+    alert("Profile Color Updated!");
   }
 }
 
@@ -139,12 +139,12 @@ async function loadPosts() {
     let adminControls = '';
     const isHidden = post.isHidden || false;
     if (currentUser && currentUser.role === 'admin') {
-      const hideBtnText = isHidden ? '👁️ Unhide' : '👻 Hide';
+      const hideBtnText = isHidden ? 'Unhide' : 'Hide';
       adminControls = `
       <div style="background: rgba(255,172,209,0.2); padding: 8px; border-radius: 15px; margin-bottom: 10px; display: flex; gap: 10px;">
-        <button onclick="editPost(${post.id})" class="tiny-btn">✏️ Edit</button>
+        <button onclick="editPost(${post.id})" class="tiny-btn">Edit</button>
         <button onclick="toggleHidePost(${post.id}, ${isHidden})" class="tiny-btn">${hideBtnText}</button>
-        <button onclick="deletePost(${post.id})" class="tiny-btn delete-btn" style="float:none;">🗑️ Delete</button>
+        <button onclick="deletePost(${post.id})" class="tiny-btn delete-btn" style="float:none;">Delete</button>
       </div>`;
     }
 
@@ -157,7 +157,7 @@ async function loadPosts() {
       <p id="content-${post.id}">${post.content}</p>
       <small>By ${post.author}</small>
       <div class="comment-section">
-        <h4>✨ Comments ✨</h4>
+        <h4>Comments</h4>
         <div id="comments-${post.id}">${commentsHTML}</div>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
           <input type="text" id="comment-text-${post.id}" placeholder="Say something nice...">
@@ -175,7 +175,7 @@ function editPost(postId) {
   document.getElementById('new-post-title').value = titleText;
   document.getElementById('new-post-content').value = contentText;
   editingPostId = postId;
-  document.getElementById('publish-btn').innerText = "Update Magic! ✨";
+  document.getElementById('publish-btn').innerText = "Update Magic!";
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -185,13 +185,13 @@ async function toggleHidePost(postId, currentStatus) {
 }
 
 async function deletePost(postId) {
-  if (!confirm("Are you sure you want to zap this post entirely? ⚡")) return;
+  if (!confirm("Are you sure you want to zap this post entirely?")) return;
   await fetch(`api.php?action=posts&id=${postId}`, { method: 'DELETE' });
   loadPosts();
 }
 
 async function publishPost() {
-  if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can post updates! 🛑");
+  if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can post updates!");
   const title = document.getElementById('new-post-title').value;
   const content = document.getElementById('new-post-content').value;
   if (!title || !content) return alert("Don't forget the title and content!");
@@ -200,7 +200,7 @@ async function publishPost() {
     await fetch('api.php?action=posts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editingPostId, title, content }) });
     editingPostId = null;
     const pubBtn = document.getElementById('publish-btn');
-    if(pubBtn) pubBtn.innerText = "Publish Magic! 🪄";
+    if(pubBtn) pubBtn.innerText = "Publish Magic!";
   } else {
     await fetch('api.php?action=posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, content }) });
   }
@@ -210,7 +210,7 @@ async function publishPost() {
 }
 
 async function postComment(postId) {
-  if (!currentUser) return alert("Please log in to leave a friendly comment! 💖");
+  if (!currentUser) return alert("Please log in to leave a friendly comment!");
   const text = document.getElementById(`comment-text-${postId}`).value;
   if (!text) return;
   await fetch('api.php?action=comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, text }) });
@@ -218,7 +218,7 @@ async function postComment(postId) {
 }
 
 async function deleteComment(commentId) {
-  if (!confirm("Are you sure you want to zap this comment? ⚡")) return;
+  if (!confirm("Are you sure you want to zap this comment?")) return;
   await fetch(`api.php?action=comments&id=${commentId}`, { method: 'DELETE' });
   loadPosts();
 }
@@ -239,7 +239,7 @@ async function loadThreads() {
     }).join('');
 
     const deleteThreadBtn = (currentUser && currentUser.role === 'admin') 
-      ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">🗑️ Delete Thread</button>` : '';
+      ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">Delete Thread</button>` : '';
 
     newHTML += `
     <article class="blog-card" style="border-color: var(--sky-blue);">
@@ -250,7 +250,7 @@ async function loadThreads() {
       <small>Started by ${thread.author}</small>
       
       <div class="comment-section">
-        <h4>💬 Replies 💬</h4>
+        <h4>Replies</h4>
         <div id="thread-replies-${thread.id}">${repliesHTML}</div>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
           <input type="text" id="thread-reply-text-${thread.id}" placeholder="Join the conversation...">
@@ -264,7 +264,7 @@ async function loadThreads() {
 }
 
 async function createThread() {
-  if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can create threads! 🛑");
+  if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can create threads!");
   const category = document.getElementById('new-thread-category').value;
   const title = document.getElementById('new-thread-title').value;
   const content = document.getElementById('new-thread-content').value;
@@ -277,13 +277,13 @@ async function createThread() {
 }
 
 async function deleteThread(threadId) {
-  if (!confirm("Are you sure you want to delete this entire thread? ⚡")) return;
+  if (!confirm("Are you sure you want to delete this entire thread?")) return;
   await fetch(`api.php?action=threads&id=${threadId}`, { method: 'DELETE' });
   loadThreads();
 }
 
 async function postThreadReply(threadId) {
-  if (!currentUser) return alert("Please log in to reply! 💖");
+  if (!currentUser) return alert("Please log in to reply!");
   const text = document.getElementById(`thread-reply-text-${threadId}`).value;
   if (!text) return;
   await fetch('api.php?action=thread_replies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, text }) });
@@ -291,7 +291,7 @@ async function postThreadReply(threadId) {
 }
 
 async function deleteThreadReply(replyId) {
-  if (!confirm("Are you sure you want to zap this reply? ⚡")) return;
+  if (!confirm("Are you sure you want to zap this reply?")) return;
   await fetch(`api.php?action=thread_replies&id=${replyId}`, { method: 'DELETE' });
   loadThreads();
 }
