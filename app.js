@@ -1,29 +1,41 @@
 // Store user info locally
 let currentUser = JSON.parse(localStorage.getItem('bubbly_user')) || null;
 let isLoginMode = false;
-let editingPostId = null; // Tracks if we are editing an existing post
+let editingPostId = null;
 
 // --- Initialize Page ---
 updateUserUI();
 loadPosts();
+loadThreads();
 
-// Magic Polling! Checks the server every 10 seconds for new updates
-setInterval(loadPosts, 10000);
+// Magic Polling! Checks the server every 10 seconds for both feeds
+setInterval(() => {
+  loadPosts();
+  loadThreads();
+}, 10000);
 
 // --- Authentication UI Logic ---
 function updateUserUI() {
   const welcomeText = document.getElementById('welcome-text');
   const btnLogin = document.getElementById('btn-show-login');
   const btnLogout = document.getElementById('btn-logout');
+  const adminThreadBox = document.getElementById('admin-thread-box');
 
   if (currentUser) {
     welcomeText.innerText = `Hello, ${currentUser.username}! ${currentUser.role === 'admin' ? '👑' : '🌟'}`;
     btnLogin.classList.add('hidden');
     btnLogout.classList.remove('hidden');
+    
+    // Un-hide the forum thread creation box if admin!
+    if (adminThreadBox) {
+        if (currentUser.role === 'admin') adminThreadBox.classList.remove('hidden');
+        else adminThreadBox.classList.add('hidden');
+    }
   } else {
     welcomeText.innerText = `Hello, Guest! 🌟`;
     btnLogin.classList.remove('hidden');
     btnLogout.classList.add('hidden');
+    if (adminThreadBox) adminThreadBox.classList.add('hidden');
   }
 }
 
@@ -68,7 +80,8 @@ async function submitAuth() {
     localStorage.setItem('bubbly_user', JSON.stringify(currentUser));
     updateUserUI();
     closeAuthModal();
-    loadPosts(); 
+    loadPosts();
+    loadThreads(); 
   } else if (res.ok && !isLoginMode) {
     toggleAuthMode(); 
   }
@@ -80,6 +93,7 @@ async function logoutUser() {
   localStorage.removeItem('bubbly_user');
   updateUserUI();
   loadPosts();
+  loadThreads();
   alert("Logged out safely! 💨");
 }
 
@@ -107,7 +121,6 @@ async function loadPosts() {
       </div>`;
     }).join('');
 
-    // Inject Admin Controls
     let adminControls = '';
     const isHidden = post.isHidden || false;
     if (currentUser && currentUser.role === 'admin') {
@@ -142,7 +155,6 @@ async function loadPosts() {
   if (feed.innerHTML !== newHTML) feed.innerHTML = newHTML;
 }
 
-// --- New Admin Content Functions ---
 function editPost(postId) {
   const titleText = document.getElementById(`title-${postId}`).innerText.replace('[DRAFT] ', '');
   const contentText = document.getElementById(`content-${postId}`).innerText;
@@ -150,9 +162,9 @@ function editPost(postId) {
   document.getElementById('new-post-title').value = titleText;
   document.getElementById('new-post-content').value = contentText;
   
-  editingPostId = postId; // Lock the system into "Edit Mode"
+  editingPostId = postId;
   document.getElementById('publish-btn').innerText = "Update Magic! ✨";
-  window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll up to the box
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function toggleHidePost(postId, currentStatus) {
@@ -178,17 +190,15 @@ async function publishPost() {
   if (!title || !content) return alert("Don't forget the title and content!");
 
   if (editingPostId) {
-    // If we are editing, send a PUT request to update the existing post
     await fetch('api.php?action=posts', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: editingPostId, title, content })
     });
-    editingPostId = null; // Exit "Edit Mode"
+    editingPostId = null;
     const pubBtn = document.getElementById('publish-btn');
     if(pubBtn) pubBtn.innerText = "Publish Magic! 🪄";
   } else {
-    // If not editing, create a brand new post
     await fetch('api.php?action=posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -219,4 +229,56 @@ async function deleteComment(commentId) {
   if (!confirm("Are you sure you want to zap this comment? ⚡")) return;
   const res = await fetch(`api.php?action=comments&id=${commentId}`, { method: 'DELETE' });
   if (res.ok) loadPosts();
+}
+
+// --- NEW: Forum Thread Logic ---
+async function loadThreads() {
+  const feed = document.getElementById('forum-feed');
+  if (!feed) return; 
+
+  const res = await fetch('api.php?action=threads');
+  const threads = await res.json();
+  
+  let newHTML = '';
+  threads.forEach(thread => {
+    const deleteBtn = (currentUser && currentUser.role === 'admin') 
+      ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">🗑️ Delete</button>` : '';
+
+    newHTML += `
+    <article class="blog-card" style="border-color: var(--sky-blue);">
+      ${deleteBtn}
+      <small style="color: var(--accent-pink); font-weight: bold; font-size: 1.1em;">${thread.category}</small>
+      <h2 style="margin-top: 5px;">${thread.title}</h2>
+      <p>${thread.content}</p>
+      <small>Started by ${thread.author}</small>
+    </article>`;
+  });
+  
+  if (feed.innerHTML !== newHTML) feed.innerHTML = newHTML;
+}
+
+async function createThread() {
+  if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can create threads! 🛑");
+  
+  const category = document.getElementById('new-thread-category').value;
+  const title = document.getElementById('new-thread-title').value;
+  const content = document.getElementById('new-thread-content').value;
+  
+  if (!title || !content) return alert("Don't forget the title and content!");
+
+  await fetch('api.php?action=threads', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ category, title, content })
+  });
+
+  document.getElementById('new-thread-title').value = '';
+  document.getElementById('new-thread-content').value = '';
+  loadThreads();
+}
+
+async function deleteThread(threadId) {
+  if (!confirm("Are you sure you want to delete this entire thread? ⚡")) return;
+  await fetch(`api.php?action=threads&id=${threadId}`, { method: 'DELETE' });
+  loadThreads();
 }

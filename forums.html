@@ -21,7 +21,28 @@
       <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
       <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
     </div>
-  </header>
+  </header> <div id="auth-modal" class="modal hidden">
+    <div class="modal-content blog-card">
+      <span class="close-btn" onclick="closeAuthModal()">✖️</span>
+      <h2 id="auth-title">✨ Join the Magic! ✨</h2>
+      
+      <div id="auth-form-container">
+        <input type="text" id="auth-username" placeholder="Pick a Username">
+        <input type="password" id="auth-password" placeholder="Secret Password">
+        
+        <div id="register-fields" class="hidden">
+          <input type="email" id="auth-email" placeholder="Your Email">
+          <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
+        </div>
+
+        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
+      </div>
+
+      <p style="text-align: center; margin-top: 15px;">
+        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a>
+      </p>
+    </div>
+  </div>
 
   <main>
     <section class="blog-card">
@@ -83,6 +104,23 @@
       </div>
 
     </section>
+
+    <section class="admin-box hidden" id="admin-thread-box">
+      <h3>Create a New Forum Thread</h3>
+      <select id="new-thread-category" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 15px; border: 3px solid var(--accent-pink); font-family: inherit; font-size: 16px;">
+        <option value="👋 The Welcome Mat">👋 The Welcome Mat</option>
+        <option value="☕ General Chat & Daily Life">☕ General Chat & Daily Life</option>
+        <option value="💖 Support & Big Feelings">💖 Support & Big Feelings</option>
+        <option value="📚 Story Time & Creativity">📚 Story Time & Creativity</option>
+        <option value="🎮 The Toy Box & Gaming">🎮 The Toy Box & Gaming</option>
+        <option value="🗺️ Local Meetups & Events">🗺️ Local Meetups & Events</option>
+      </select>
+      <input type="text" id="new-thread-title" placeholder="Thread Title...">
+      <textarea id="new-thread-content" placeholder="Kick off the conversation..."></textarea>
+      <button onclick="createThread()">Post Thread! 🪄</button>
+    </section>
+
+    <section id="forum-feed"></section>
   </main>
 
   <script src="app.js"></script>
