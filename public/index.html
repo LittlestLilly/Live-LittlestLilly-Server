@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lilly's Home Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="notification-banner" class="hidden">🌟 ✨ Lilly just posted a new update! ✨ 🌟</div>
+
+  <header>
+    <h1>Welcome to Lilly's Space! 🌈</h1>
+    <nav class="bubbly-nav">
+      <a href="index.html">🏠 Home</a>
+      <a href="blog.html">📝 All Posts</a>
+      <a href="forums.html">💬 Forums</a>
+      <a href="contact.html">💌 Contact</a>
+    </nav>
+    <div id="user-status" style="margin-top: 15px; font-weight: bold;">
+      <span id="welcome-text">Hello, Guest! 🌟</span>
+      <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
+      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
+    </div>
+
+  </header> <div id="auth-modal" class="modal hidden">
+    <div class="modal-content blog-card">
+      <span class="close-btn" onclick="closeAuthModal()">✖️</span>
+      <h2 id="auth-title">✨ Join the Magic! ✨</h2>
+      
+      <div id="auth-form-container">
+        <input type="text" id="auth-username" placeholder="Pick a Username">
+        <input type="password" id="auth-password" placeholder="Secret Password">
+        
+        <div id="register-fields" class="hidden">
+          <input type="email" id="auth-email" placeholder="Your Email">
+          <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
+        </div>
+
+        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
+      </div>
+
+      <p style="text-align: center; margin-top: 15px;">
+        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a>
+      </p>
+    </div>
+  </div>
+  </header>
+
+  <main>
+    <div id="home-feed-indicator" style="display:none;"></div>
+    
+    <h2 style="text-align: center;">✨ Latest Updates ✨</h2>
+    <section id="blog-feed"></section>
+
+    <h2 style="text-align: center; margin-top: 40px;">📱 My Social Feeds 📱</h2>
+    <div class="embed-container">
+      
+      <div class="embed-box">
+        <h3>🦋 BlueSky</h3>
+        <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:placeholder/app.bsky.feed.post/placeholder">
+          <p>Loading Lilly's latest BlueSky thought... ✨</p>
+        </blockquote>
+        <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
+      </div>
+
+      <div class="embed-box">
+        <h3>✈️ Telegram</h3>
+        <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="telegram/82" data-width="100%"></script>
+        <p><em>(Make sure your Telegram channel is public to see this!)</em></p>
+      </div>
+
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

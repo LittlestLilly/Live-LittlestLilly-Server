@@ -1,0 +1,16 @@
+# Node dependencies (This folder is huge, we don't want to upload it!)
+node_modules/
+
+# Local JSON database files (Keeps your live site data safe from overwrites)
+data/*.json
+
+# macOS specific hidden files
+.DS_Store
+**/.DS_Store
+
+# Environment variables (For future API keys or database passwords)
+.env
+
+# Lilly's Shit
+scratch.txt
+

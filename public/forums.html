@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Lilly's Bubbly Forums 🌈</title>
+  <link rel="stylesheet" href="style.css">  
+</head>
+<body>
+  <header>
+    <h1>The Bubbly Community Forums! 💬</h1>
+    
+    <nav class="bubbly-nav">
+      <a href="index.html">🏠 Home</a>
+      <a href="blog.html">📝 All Posts</a>
+      <a href="forums.html">💬 Forums</a>
+      <a href="contact.html">💌 Contact</a>
+    </nav>
+    
+    <div id="user-status" style="margin-top: 15px; font-weight: bold;">
+      <span id="welcome-text">Hello, Guest! 🌟</span>
+      <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
+      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="blog-card">
+      <h2 style="text-align: center;">Welcome to the Message Boards! ✨</h2>
+      <p style="text-align: center;">Jump into a category below to start chatting with friends!</p>
+      
+      <div class="forum-category">
+        <div class="category-icon">👋</div>
+        <div class="category-info">
+          <h3>The Welcome Mat</h3>
+          <p>Say hi, introduce yourself, and meet your new friends!</p>
+        </div>
+        <div class="category-stats">12 Topics</div>
+      </div>
+
+      <div class="forum-category">
+        <div class="category-icon">☕</div>
+        <div class="category-info">
+          <h3>General Chat & Daily Life</h3>
+          <p>Discuss your day, grab a coffee, and chat about whatever is on your mind.</p>
+        </div>
+        <div class="category-stats">85 Topics</div>
+      </div>
+
+      <div class="forum-category">
+        <div class="category-icon">💖</div>
+        <div class="category-info">
+          <h3>Support & Big Feelings</h3>
+          <p>A safe, supportive space to talk through tough days and seek advice.</p>
+        </div>
+        <div class="category-stats">42 Topics</div>
+      </div>
+
+      <div class="forum-category">
+        <div class="category-icon">📚</div>
+        <div class="category-info">
+          <h3>Story Time & Creativity</h3>
+          <p>Share your creative writing, fiction stories, and artistic projects!</p>
+        </div>
+        <div class="category-stats">28 Topics</div>
+      </div>
+
+      <div class="forum-category">
+        <div class="category-icon">🎮</div>
+        <div class="category-info">
+          <h3>The Toy Box & Gaming</h3>
+          <p>Talk about your favorite video games, web dev projects, and toy collecting!</p>
+        </div>
+        <div class="category-stats">56 Topics</div>
+      </div>
+
+      <div class="forum-category">
+        <div class="category-icon">🗺️</div>
+        <div class="category-info">
+          <h3>Local Meetups & Events</h3>
+          <p>Planning to meet up? Discuss Georgetown events, local coffee shop trips, and convention prep!</p>
+        </div>
+        <div class="category-stats">19 Topics</div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
