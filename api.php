@@ -10,7 +10,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 $postsFile = __DIR__ . '/data/posts.json';
 $commentsFile = __DIR__ . '/data/comments.json';
 $usersFile = __DIR__ . '/data/users.json';
-$threadsFile = __DIR__ . '/data/threads.json'; // New Forums Database!
+$threadsFile = __DIR__ . '/data/threads.json'; 
+$threadRepliesFile = __DIR__ . '/data/thread_replies.json'; // New Replies Database!
 $envFile = __DIR__ . '/.env';
 
 // Helper to read JSON files
@@ -36,17 +37,14 @@ function getAdminSecret() {
     return 'LillyIsTheBoss';
 }
 
-// Read incoming JSON data from the frontend
 $input = json_decode(file_get_contents('php://input'), true);
 
-// --- 1. Authentication ---
+// --- 1. Authentication & Users ---
 if ($action === 'register' && $method === 'POST') {
     $users = readData($usersFile);
     foreach ($users as $u) {
         if ($u['username'] === $input['username']) {
-            http_response_code(400);
-            echo json_encode(["message" => "Username taken! Try another. 👯"]);
-            exit;
+            http_response_code(400); echo json_encode(["message" => "Username taken! Try another. 👯"]); exit;
         }
     }
     
@@ -55,14 +53,12 @@ if ($action === 'register' && $method === 'POST') {
         "username" => $input['username'],
         "password" => password_hash($input['password'], PASSWORD_DEFAULT),
         "role" => ($input['secretCode'] ?? '') === getAdminSecret() ? "admin" : "user",
-        "color" => "#FFF380"
+        "color" => "#FFF380" // Default bubbly yellow
     ];
     
     $users[] = $newUser;
     writeData($usersFile, $users);
-    http_response_code(201);
-    echo json_encode(["message" => "Account created! Welcome! 🎉"]);
-    exit;
+    http_response_code(201); echo json_encode(["message" => "Account created! Welcome! 🎉"]); exit;
 }
 
 if ($action === 'login' && $method === 'POST') {
@@ -70,24 +66,47 @@ if ($action === 'login' && $method === 'POST') {
     foreach ($users as $user) {
         if ($user['username'] === $input['username'] && password_verify($input['password'], $user['password'])) {
             $_SESSION['user'] = [
-                "id" => $user['id'], 
-                "username" => $user['username'], 
-                "role" => $user['role'], 
-                "color" => $user['color']
+                "id" => $user['id'], "username" => $user['username'], 
+                "role" => $user['role'], "color" => $user['color']
             ];
-            echo json_encode(["message" => "Logged in successfully! 🌟", "role" => $user['role'], "username" => $user['username']]);
+            echo json_encode(["message" => "Logged in successfully! 🌟", "role" => $user['role'], "username" => $user['username'], "color" => $user['color']]);
             exit;
         }
     }
-    http_response_code(401);
-    echo json_encode(["message" => "Incorrect username or password. 🕵️‍♀️"]);
-    exit;
+    http_response_code(401); echo json_encode(["message" => "Incorrect username or password. 🕵️‍♀️"]); exit;
 }
 
 if ($action === 'logout' && $method === 'POST') {
-    session_destroy();
-    echo json_encode(["message" => "Logged out. See you next time! 👋"]);
-    exit;
+    session_destroy(); echo json_encode(["message" => "Logged out. See you next time! 👋"]); exit;
+}
+
+// NEW: Update Profile Color
+if ($action === 'users' && $method === 'PUT') {
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
+    $users = readData($usersFile);
+    $newColor = $input['color'];
+    
+    // Update the user's file
+    foreach ($users as &$u) {
+        if ($u['username'] === $_SESSION['user']['username']) {
+            $u['color'] = $newColor;
+            $_SESSION['user']['color'] = $newColor;
+            break;
+        }
+    }
+    writeData($usersFile, $users);
+    
+    // Retroactively update all their blog comments
+    $comments = readData($commentsFile);
+    foreach ($comments as &$c) { if ($c['username'] === $_SESSION['user']['username']) $c['color'] = $newColor; }
+    writeData($commentsFile, $comments);
+
+    // Retroactively update all their forum replies
+    $replies = readData($threadRepliesFile);
+    foreach ($replies as &$r) { if ($r['username'] === $_SESSION['user']['username']) $r['color'] = $newColor; }
+    writeData($threadRepliesFile, $replies);
+
+    echo json_encode(["message" => "Color updated! ✨", "color" => $newColor]); exit;
 }
 
 // --- 2. Blog Data ---
@@ -99,13 +118,10 @@ if ($action === 'posts' && $method === 'GET') {
     
     foreach (array_reverse($posts) as $post) {
         if (isset($post['isHidden']) && $post['isHidden'] && !$isAdmin) continue;
-        
-        $postComments = array_values(array_filter($comments, function($c) use ($post) { return $c['postId'] == $post['id']; }));
-        $post['comments'] = $postComments;
+        $post['comments'] = array_values(array_filter($comments, function($c) use ($post) { return $c['postId'] == $post['id']; }));
         $feed[] = $post;
     }
-    echo json_encode($feed);
-    exit;
+    echo json_encode($feed); exit;
 }
 
 if ($action === 'recent_posts' && $method === 'GET') {
@@ -120,38 +136,25 @@ if ($action === 'recent_posts' && $method === 'GET') {
     $recent = array_slice($visiblePosts, 0, 5);
     
     foreach ($recent as $post) {
-        $postComments = array_values(array_filter($comments, function($c) use ($post) { return $c['postId'] == $post['id']; }));
-        $post['comments'] = $postComments;
+        $post['comments'] = array_values(array_filter($comments, function($c) use ($post) { return $c['postId'] == $post['id']; }));
         $feed[] = $post;
     }
-    echo json_encode($feed);
-    exit;
+    echo json_encode($feed); exit;
 }
 
 if ($action === 'posts' && $method === 'POST') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
-    }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
     $posts = readData($postsFile);
-    $newPost = [
-        "id" => time(), 
-        "title" => $input['title'], 
-        "content" => $input['content'], 
-        "author" => $_SESSION['user']['username'],
-        "isHidden" => false
-    ];
+    $newPost = [ "id" => time(), "title" => $input['title'], "content" => $input['content'], "author" => $_SESSION['user']['username'], "isHidden" => false ];
     $posts[] = $newPost;
     writeData($postsFile, $posts);
     http_response_code(201); echo json_encode($newPost); exit;
 }
 
 if ($action === 'posts' && $method === 'PUT') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
-    }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
     $posts = readData($postsFile);
     $postId = (int)$input['id'];
-    
     foreach ($posts as &$post) {
         if ($post['id'] === $postId) {
             if (isset($input['title'])) $post['title'] = $input['title'];
@@ -160,88 +163,93 @@ if ($action === 'posts' && $method === 'PUT') {
             break;
         }
     }
-    writeData($postsFile, $posts);
-    echo json_encode(["message" => "Post updated! ✨"]);
-    exit;
+    writeData($postsFile, $posts); echo json_encode(["message" => "Post updated! ✨"]); exit;
 }
 
 if ($action === 'posts' && $method === 'DELETE') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
-    }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
     $posts = readData($postsFile);
     $idToDelete = (int)$_GET['id'];
-    
     $posts = array_values(array_filter($posts, function($p) use ($idToDelete) { return $p['id'] !== $idToDelete; }));
     writeData($postsFile, $posts);
     
     $comments = readData($commentsFile);
     $comments = array_values(array_filter($comments, function($c) use ($idToDelete) { return $c['postId'] !== $idToDelete; }));
     writeData($commentsFile, $comments);
-
-    echo json_encode(["message" => "Post vanished! 💨"]);
-    exit;
+    echo json_encode(["message" => "Post vanished! 💨"]); exit;
 }
 
 if ($action === 'comments' && $method === 'POST') {
-    if (!isset($_SESSION['user'])) {
-        http_response_code(401); echo json_encode(["message" => "Please log in first! 🛑"]); exit;
-    }
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
     $comments = readData($commentsFile);
     $newComment = [
         "id" => time(), "postId" => (int)$input['postId'], 
         "username" => $_SESSION['user']['username'], "text" => $input['text'], "color" => $_SESSION['user']['color']
     ];
     $comments[] = $newComment;
-    writeData($commentsFile, $comments);
-    http_response_code(201); echo json_encode($newComment); exit;
+    writeData($commentsFile, $comments); http_response_code(201); echo json_encode($newComment); exit;
 }
 
 if ($action === 'comments' && $method === 'DELETE') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
-    }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
     $comments = readData($commentsFile);
     $idToDelete = (int)$_GET['id'];
     $comments = array_values(array_filter($comments, function($c) use ($idToDelete) { return $c['id'] !== $idToDelete; }));
-    writeData($commentsFile, $comments);
-    echo json_encode(["message" => "Comment vanished! 💨"]);
-    exit;
+    writeData($commentsFile, $comments); echo json_encode(["message" => "Comment vanished! 💨"]); exit;
 }
 
-// --- 3. Forum Data (NEW!) ---
+// --- 3. Forum Data ---
 if ($action === 'threads' && $method === 'GET') {
     $threads = readData($threadsFile);
-    echo json_encode(array_reverse($threads));
-    exit;
+    $replies = readData($threadRepliesFile);
+    $feed = [];
+    
+    foreach (array_reverse($threads) as $thread) {
+        $thread['replies'] = array_values(array_filter($replies, function($r) use ($thread) { return $r['threadId'] == $thread['id']; }));
+        $feed[] = $thread;
+    }
+    echo json_encode($feed); exit;
 }
 
 if ($action === 'threads' && $method === 'POST') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
-    }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
     $threads = readData($threadsFile);
-    $newThread = [
-        "id" => time(),
-        "category" => $input['category'],
-        "title" => $input['title'],
-        "content" => $input['content'],
-        "author" => $_SESSION['user']['username']
-    ];
+    $newThread = [ "id" => time(), "category" => $input['category'], "title" => $input['title'], "content" => $input['content'], "author" => $_SESSION['user']['username'] ];
     $threads[] = $newThread;
-    writeData($threadsFile, $threads);
-    http_response_code(201); echo json_encode($newThread); exit;
+    writeData($threadsFile, $threads); http_response_code(201); echo json_encode($newThread); exit;
 }
 
 if ($action === 'threads' && $method === 'DELETE') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-        http_response_code(403); echo json_encode(["message" => "Only admins can use this magic! 🪄"]); exit;
-    }
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
     $threads = readData($threadsFile);
     $idToDelete = (int)$_GET['id'];
     $threads = array_values(array_filter($threads, function($t) use ($idToDelete) { return $t['id'] !== $idToDelete; }));
     writeData($threadsFile, $threads);
-    echo json_encode(["message" => "Thread vanished! 💨"]);
-    exit;
+    
+    // Clean up replies too
+    $replies = readData($threadRepliesFile);
+    $replies = array_values(array_filter($replies, function($r) use ($idToDelete) { return $r['threadId'] !== $idToDelete; }));
+    writeData($threadRepliesFile, $replies);
+    echo json_encode(["message" => "Thread vanished! 💨"]); exit;
+}
+
+// NEW: Forum Replies POST & DELETE
+if ($action === 'thread_replies' && $method === 'POST') {
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
+    $replies = readData($threadRepliesFile);
+    $newReply = [
+        "id" => time(), "threadId" => (int)$input['threadId'], 
+        "username" => $_SESSION['user']['username'], "text" => $input['text'], "color" => $_SESSION['user']['color']
+    ];
+    $replies[] = $newReply;
+    writeData($threadRepliesFile, $replies); http_response_code(201); echo json_encode($newReply); exit;
+}
+
+if ($action === 'thread_replies' && $method === 'DELETE') {
+    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
+    $replies = readData($threadRepliesFile);
+    $idToDelete = (int)$_GET['id'];
+    $replies = array_values(array_filter($replies, function($r) use ($idToDelete) { return $r['id'] !== $idToDelete; }));
+    writeData($threadRepliesFile, $replies); echo json_encode(["message" => "Reply vanished! 💨"]); exit;
 }
 ?>

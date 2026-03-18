@@ -20,32 +20,37 @@
     <div id="user-status" style="margin-top: 15px; font-weight: bold;">
       <span id="welcome-text">Hello, Guest! 🌟</span>
       <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
+      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">🎨 Profile</button>
       <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
     </div>
-
-  </header> <div id="auth-modal" class="modal hidden">
+  </header> 
+  
+  <div id="auth-modal" class="modal hidden">
     <div class="modal-content blog-card">
       <span class="close-btn" onclick="closeAuthModal()">✖️</span>
       <h2 id="auth-title">✨ Join the Magic! ✨</h2>
-      
       <div id="auth-form-container">
         <input type="text" id="auth-username" placeholder="Pick a Username">
         <input type="password" id="auth-password" placeholder="Secret Password">
-        
         <div id="register-fields" class="hidden">
           <input type="email" id="auth-email" placeholder="Your Email">
           <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
         </div>
-
         <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
       </div>
-
-      <p style="text-align: center; margin-top: 15px;">
-        <a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a>
-      </p>
+      <p style="text-align: center; margin-top: 15px;"><a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a></p>
     </div>
   </div>
-  </header>
+
+  <div id="profile-modal" class="modal hidden">
+    <div class="modal-content blog-card">
+      <span class="close-btn" onclick="closeProfileModal()">✖️</span>
+      <h2>🎨 Customize Profile 🎨</h2>
+      <p>Pick a new color for your chat bubbles!</p>
+      <input type="color" id="profile-color-picker" value="#FFF380" style="width: 100%; height: 50px; cursor: pointer; border-radius: 10px; border: 3px solid var(--dark-text);">
+      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color! ✨</button>
+    </div>
+  </div>
 
   <main>
     <div id="home-feed-indicator" style="display:none;"></div>
@@ -55,7 +60,6 @@
 
     <h2 style="text-align: center; margin-top: 40px;">📱 My Social Feeds 📱</h2>
     <div class="embed-container">
-      
       <div class="embed-box">
         <h3>🦋 BlueSky</h3>
         <blockquote class="bluesky-embed" data-bluesky-uri="at://did:plc:placeholder/app.bsky.feed.post/placeholder">
@@ -63,13 +67,11 @@
         </blockquote>
         <script async src="https://embed.bsky.app/static/embed.js" charset="utf-8"></script>
       </div>
-
       <div class="embed-box">
         <h3>✈️ Telegram</h3>
         <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-post="LittlestLillys/1" data-width="100%"></script>
         <p><em>(Note: Telegram requires a specific post number! Change the "/1" in the code to your latest post ID to update this box.)</em></p>
       </div>
-
     </div>
   </main>
   <script src="app.js"></script>

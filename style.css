@@ -107,7 +107,7 @@ button:hover { filter: brightness(0.9); }
 .socials a { color: var(--dark-text); text-decoration: none; font-weight: bold; }
 .socials a:hover { text-decoration: underline; color: var(--accent-pink); }
 hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
-/* Navigation Bar Styles */
+
 .bubbly-nav {
   display: flex;
   gap: 15px;
@@ -134,7 +134,6 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
   background-color: var(--sky-blue);
 }
 
-/* Embed Layout */
 .embed-container {
   display: flex;
   flex-wrap: wrap;
@@ -144,14 +143,14 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 
 .embed-box {
   flex: 1;
-  min-width: 350px; /* Widened to prevent clipping */
+  min-width: 350px; 
   background: white;
   border: 4px solid var(--sky-blue);
   border-radius: 20px;
   padding: 15px;
   box-shadow: 6px 6px 0px var(--accent-pink);
 }
-/* Auth Modal Styles */
+
 .modal {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
@@ -205,7 +204,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
   cursor: pointer;
   float: right;
 }
-/* Forum Category Styles */
+
 .forum-category {
   display: flex;
   align-items: center;

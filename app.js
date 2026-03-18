@@ -18,15 +18,19 @@ setInterval(() => {
 function updateUserUI() {
   const welcomeText = document.getElementById('welcome-text');
   const btnLogin = document.getElementById('btn-show-login');
+  const btnProfile = document.getElementById('btn-profile');
   const btnLogout = document.getElementById('btn-logout');
   const adminThreadBox = document.getElementById('admin-thread-box');
+  const colorPicker = document.getElementById('profile-color-picker');
 
   if (currentUser) {
     welcomeText.innerText = `Hello, ${currentUser.username}! ${currentUser.role === 'admin' ? '👑' : '🌟'}`;
     btnLogin.classList.add('hidden');
+    btnProfile.classList.remove('hidden');
     btnLogout.classList.remove('hidden');
     
-    // Un-hide the forum thread creation box if admin!
+    if (colorPicker && currentUser.color) colorPicker.value = currentUser.color;
+    
     if (adminThreadBox) {
         if (currentUser.role === 'admin') adminThreadBox.classList.remove('hidden');
         else adminThreadBox.classList.add('hidden');
@@ -34,24 +38,24 @@ function updateUserUI() {
   } else {
     welcomeText.innerText = `Hello, Guest! 🌟`;
     btnLogin.classList.remove('hidden');
+    btnProfile.classList.add('hidden');
     btnLogout.classList.add('hidden');
     if (adminThreadBox) adminThreadBox.classList.add('hidden');
   }
 }
 
+// Modal Toggles
 function openAuthModal() { document.getElementById('auth-modal').classList.remove('hidden'); }
 function closeAuthModal() { document.getElementById('auth-modal').classList.add('hidden'); }
+function openProfileModal() { document.getElementById('profile-modal').classList.remove('hidden'); }
+function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
 
 function toggleAuthMode() {
   isLoginMode = !isLoginMode;
   document.getElementById('auth-title').innerText = isLoginMode ? "✨ Welcome Back! ✨" : "✨ Join the Magic! ✨";
   document.getElementById('auth-toggle-link').innerText = isLoginMode ? "Need an account? Register!" : "Already a member? Log in!";
-  
-  if (isLoginMode) {
-    document.getElementById('register-fields').classList.add('hidden');
-  } else {
-    document.getElementById('register-fields').classList.remove('hidden');
-  }
+  if (isLoginMode) document.getElementById('register-fields').classList.add('hidden');
+  else document.getElementById('register-fields').classList.remove('hidden');
 }
 
 // --- Authentication API Calls ---
@@ -76,7 +80,7 @@ async function submitAuth() {
   alert(data.message);
 
   if (res.ok && isLoginMode) {
-    currentUser = { username: data.username, role: data.role };
+    currentUser = { username: data.username, role: data.role, color: data.color || '#FFF380' };
     localStorage.setItem('bubbly_user', JSON.stringify(currentUser));
     updateUserUI();
     closeAuthModal();
@@ -97,6 +101,23 @@ async function logoutUser() {
   alert("Logged out safely! 💨");
 }
 
+async function saveProfileColor() {
+  const newColor = document.getElementById('profile-color-picker').value;
+  const res = await fetch('api.php?action=users', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ color: newColor })
+  });
+  if (res.ok) {
+    currentUser.color = newColor;
+    localStorage.setItem('bubbly_user', JSON.stringify(currentUser));
+    closeProfileModal();
+    loadPosts();
+    loadThreads();
+    alert("Profile Color Updated! ✨");
+  }
+}
+
 // --- Blog & Comment Logic ---
 async function loadPosts() {
   const feed = document.getElementById('blog-feed');
@@ -111,14 +132,8 @@ async function loadPosts() {
   let newHTML = '';
   posts.forEach(post => {
     let commentsHTML = post.comments.map(c => {
-      const deleteBtn = (currentUser && currentUser.role === 'admin') 
-        ? `<button class="delete-btn" onclick="deleteComment(${c.id})">Delete</button>` : '';
-
-      return `
-      <div class="bubble" style="background-color: ${c.color}">
-        ${deleteBtn}
-        <strong>${c.username}:</strong> ${c.text}
-      </div>`;
+      const deleteBtn = (currentUser && currentUser.role === 'admin') ? `<button class="delete-btn" onclick="deleteComment(${c.id})">Delete</button>` : '';
+      return `<div class="bubble" style="background-color: ${c.color}">${deleteBtn}<strong>${c.username}:</strong> ${c.text}</div>`;
     }).join('');
 
     let adminControls = '';
@@ -151,28 +166,21 @@ async function loadPosts() {
       </div>
     </article>`;
   });
-  
   if (feed.innerHTML !== newHTML) feed.innerHTML = newHTML;
 }
 
 function editPost(postId) {
   const titleText = document.getElementById(`title-${postId}`).innerText.replace('[DRAFT] ', '');
   const contentText = document.getElementById(`content-${postId}`).innerText;
-  
   document.getElementById('new-post-title').value = titleText;
   document.getElementById('new-post-content').value = contentText;
-  
   editingPostId = postId;
   document.getElementById('publish-btn').innerText = "Update Magic! ✨";
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function toggleHidePost(postId, currentStatus) {
-  await fetch('api.php?action=posts', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: postId, isHidden: !currentStatus })
-  });
+  await fetch('api.php?action=posts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: postId, isHidden: !currentStatus }) });
   loadPosts();
 }
 
@@ -184,28 +192,18 @@ async function deletePost(postId) {
 
 async function publishPost() {
   if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can post updates! 🛑");
-  
   const title = document.getElementById('new-post-title').value;
   const content = document.getElementById('new-post-content').value;
   if (!title || !content) return alert("Don't forget the title and content!");
 
   if (editingPostId) {
-    await fetch('api.php?action=posts', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: editingPostId, title, content })
-    });
+    await fetch('api.php?action=posts', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editingPostId, title, content }) });
     editingPostId = null;
     const pubBtn = document.getElementById('publish-btn');
     if(pubBtn) pubBtn.innerText = "Publish Magic! 🪄";
   } else {
-    await fetch('api.php?action=posts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, content })
-    });
+    await fetch('api.php?action=posts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, content }) });
   }
-
   document.getElementById('new-post-title').value = '';
   document.getElementById('new-post-content').value = '';
   loadPosts();
@@ -213,22 +211,16 @@ async function publishPost() {
 
 async function postComment(postId) {
   if (!currentUser) return alert("Please log in to leave a friendly comment! 💖");
-
   const text = document.getElementById(`comment-text-${postId}`).value;
   if (!text) return;
-
-  await fetch('api.php?action=comments', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ postId, text })
-  });
+  await fetch('api.php?action=comments', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ postId, text }) });
   loadPosts(); 
 }
 
 async function deleteComment(commentId) {
   if (!confirm("Are you sure you want to zap this comment? ⚡")) return;
-  const res = await fetch(`api.php?action=comments&id=${commentId}`, { method: 'DELETE' });
-  if (res.ok) loadPosts();
+  await fetch(`api.php?action=comments&id=${commentId}`, { method: 'DELETE' });
+  loadPosts();
 }
 
 // --- NEW: Forum Thread Logic ---
@@ -241,16 +233,30 @@ async function loadThreads() {
   
   let newHTML = '';
   threads.forEach(thread => {
-    const deleteBtn = (currentUser && currentUser.role === 'admin') 
-      ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">🗑️ Delete</button>` : '';
+    let repliesHTML = thread.replies.map(r => {
+      const deleteBtn = (currentUser && currentUser.role === 'admin') ? `<button class="delete-btn" onclick="deleteThreadReply(${r.id})">Delete</button>` : '';
+      return `<div class="bubble" style="background-color: ${r.color}">${deleteBtn}<strong>${r.username}:</strong> ${r.text}</div>`;
+    }).join('');
+
+    const deleteThreadBtn = (currentUser && currentUser.role === 'admin') 
+      ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">🗑️ Delete Thread</button>` : '';
 
     newHTML += `
     <article class="blog-card" style="border-color: var(--sky-blue);">
-      ${deleteBtn}
+      ${deleteThreadBtn}
       <small style="color: var(--accent-pink); font-weight: bold; font-size: 1.1em;">${thread.category}</small>
       <h2 style="margin-top: 5px;">${thread.title}</h2>
       <p>${thread.content}</p>
       <small>Started by ${thread.author}</small>
+      
+      <div class="comment-section">
+        <h4>💬 Replies 💬</h4>
+        <div id="thread-replies-${thread.id}">${repliesHTML}</div>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <input type="text" id="thread-reply-text-${thread.id}" placeholder="Join the conversation...">
+          <button onclick="postThreadReply(${thread.id})">Reply</button>
+        </div>
+      </div>
     </article>`;
   });
   
@@ -259,19 +265,12 @@ async function loadThreads() {
 
 async function createThread() {
   if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can create threads! 🛑");
-  
   const category = document.getElementById('new-thread-category').value;
   const title = document.getElementById('new-thread-title').value;
   const content = document.getElementById('new-thread-content').value;
-  
   if (!title || !content) return alert("Don't forget the title and content!");
 
-  await fetch('api.php?action=threads', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ category, title, content })
-  });
-
+  await fetch('api.php?action=threads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category, title, content }) });
   document.getElementById('new-thread-title').value = '';
   document.getElementById('new-thread-content').value = '';
   loadThreads();
@@ -280,5 +279,19 @@ async function createThread() {
 async function deleteThread(threadId) {
   if (!confirm("Are you sure you want to delete this entire thread? ⚡")) return;
   await fetch(`api.php?action=threads&id=${threadId}`, { method: 'DELETE' });
+  loadThreads();
+}
+
+async function postThreadReply(threadId) {
+  if (!currentUser) return alert("Please log in to reply! 💖");
+  const text = document.getElementById(`thread-reply-text-${threadId}`).value;
+  if (!text) return;
+  await fetch('api.php?action=thread_replies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, text }) });
+  loadThreads(); 
+}
+
+async function deleteThreadReply(replyId) {
+  if (!confirm("Are you sure you want to zap this reply? ⚡")) return;
+  await fetch(`api.php?action=thread_replies&id=${replyId}`, { method: 'DELETE' });
   loadThreads();
 }
