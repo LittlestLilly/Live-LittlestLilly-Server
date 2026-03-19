@@ -11,7 +11,9 @@ loadThreads();
 // Magic Polling! Checks the server every 10 seconds for both feeds
 setInterval(() => {
   loadPosts();
-  loadThreads();
+  // Preserve the search query during auto-refresh
+  const searchInput = document.getElementById('forum-search-input');
+  loadThreads(searchInput ? searchInput.value : '');
 }, 10000);
 
 // --- Authentication UI Logic ---
@@ -223,15 +225,50 @@ async function deleteComment(commentId) {
   loadPosts();
 }
 
-// --- NEW: Forum Thread Logic ---
-async function loadThreads() {
+// --- NEW: Forum Thread Search & Logic ---
+function handleForumSearch() {
+  const query = document.getElementById('forum-search-input').value;
+  loadThreads(query);
+}
+
+async function loadThreads(searchQuery = '') {
   const feed = document.getElementById('forum-feed');
+  const recentBox = document.getElementById('recent-threads-list');
   if (!feed) return; 
 
   const res = await fetch('api.php?action=threads');
-  const threads = await res.json();
+  let threads = await res.json();
   
+  // Populate the top 5 recent threads in the sidebar
+  if (recentBox) {
+    let recentHTML = '';
+    const top5 = threads.slice(0, 5);
+    if (top5.length === 0) recentHTML = '<p>No threads yet!</p>';
+    top5.forEach(t => {
+      recentHTML += `
+      <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 2px dashed var(--sky-blue);">
+        <a href="#thread-${t.id}" style="text-decoration: none; color: var(--dark-text); font-weight: bold; font-size: 1.1em;">${t.title}</a>
+        <br><small style="color: var(--accent-pink);">By ${t.author}</small>
+      </div>`;
+    });
+    recentBox.innerHTML = recentHTML;
+  }
+
+  // Filter threads if user is typing a search
+  if (searchQuery) {
+    const lowerQ = searchQuery.toLowerCase();
+    threads = threads.filter(t => 
+      t.title.toLowerCase().includes(lowerQ) || 
+      t.content.toLowerCase().includes(lowerQ) || 
+      t.category.toLowerCase().includes(lowerQ)
+    );
+  }
+
   let newHTML = '';
+  if (threads.length === 0 && searchQuery) {
+    newHTML = '<p style="text-align: center; font-weight: bold; font-size: 1.2em;">No threads match your search!</p>';
+  }
+
   threads.forEach(thread => {
     let repliesHTML = thread.replies.map(r => {
       const deleteBtn = (currentUser && currentUser.role === 'admin') ? `<button class="delete-btn" onclick="deleteThreadReply(${r.id})">Delete</button>` : '';
@@ -242,7 +279,7 @@ async function loadThreads() {
       ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">Delete Thread</button>` : '';
 
     newHTML += `
-    <article class="blog-card" style="border-color: var(--sky-blue);">
+    <article class="blog-card" id="thread-${thread.id}" style="border-color: var(--sky-blue);">
       ${deleteThreadBtn}
       <small style="color: var(--accent-pink); font-weight: bold; font-size: 1.1em;">${thread.category}</small>
       <h2 style="margin-top: 5px;">${thread.title}</h2>
@@ -273,13 +310,17 @@ async function createThread() {
   await fetch('api.php?action=threads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category, title, content }) });
   document.getElementById('new-thread-title').value = '';
   document.getElementById('new-thread-content').value = '';
+  
+  const searchBox = document.getElementById('forum-search-input');
+  if(searchBox) searchBox.value = ''; // Clear search when posting
   loadThreads();
 }
 
 async function deleteThread(threadId) {
   if (!confirm("Are you sure you want to delete this entire thread?")) return;
   await fetch(`api.php?action=threads&id=${threadId}`, { method: 'DELETE' });
-  loadThreads();
+  const query = document.getElementById('forum-search-input') ? document.getElementById('forum-search-input').value : '';
+  loadThreads(query);
 }
 
 async function postThreadReply(threadId) {
@@ -287,11 +328,14 @@ async function postThreadReply(threadId) {
   const text = document.getElementById(`thread-reply-text-${threadId}`).value;
   if (!text) return;
   await fetch('api.php?action=thread_replies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, text }) });
-  loadThreads(); 
+  
+  const query = document.getElementById('forum-search-input') ? document.getElementById('forum-search-input').value : '';
+  loadThreads(query); 
 }
 
 async function deleteThreadReply(replyId) {
   if (!confirm("Are you sure you want to zap this reply?")) return;
   await fetch(`api.php?action=thread_replies&id=${replyId}`, { method: 'DELETE' });
-  loadThreads();
+  const query = document.getElementById('forum-search-input') ? document.getElementById('forum-search-input').value : '';
+  loadThreads(query);
 }

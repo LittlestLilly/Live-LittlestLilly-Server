@@ -49,71 +49,84 @@
     </div>
   </div>
 
-  <main>
-    <section class="blog-card">
-      <h2 style="text-align: center;">Welcome to the Message Boards!</h2>
-      <p style="text-align: center;">Jump into a category below to start chatting with friends!</p>
+  <main class="forum-layout">
+    <div class="forum-main">
+      <section class="blog-card">
+        <h2 style="text-align: center;">Welcome to the Message Boards!</h2>
+        <p style="text-align: center;">Jump into a category below to start chatting with friends!</p>
+        
+        <div class="forum-category">
+          <div class="category-info">
+            <h3>The Welcome Mat</h3>
+            <p>Say hi, introduce yourself, and meet your new friends!</p>
+          </div>
+          <div class="category-stats">12 Topics</div>
+        </div>
+        <div class="forum-category">
+          <div class="category-info">
+            <h3>General Chat & Daily Life</h3>
+            <p>Discuss your day, grab a coffee, and chat about whatever is on your mind.</p>
+          </div>
+          <div class="category-stats">85 Topics</div>
+        </div>
+        <div class="forum-category">
+          <div class="category-info">
+            <h3>Support & Big Feelings</h3>
+            <p>A safe, supportive space to talk through tough days and seek advice.</p>
+          </div>
+          <div class="category-stats">42 Topics</div>
+        </div>
+        <div class="forum-category">
+          <div class="category-info">
+            <h3>Story Time & Creativity</h3>
+            <p>Share your creative writing, fiction stories, and artistic projects!</p>
+          </div>
+          <div class="category-stats">28 Topics</div>
+        </div>
+        <div class="forum-category">
+          <div class="category-info">
+            <h3>The Toy Box & Gaming</h3>
+            <p>Talk about your favorite video games, web dev projects, and toy collecting!</p>
+          </div>
+          <div class="category-stats">56 Topics</div>
+        </div>
+        <div class="forum-category">
+          <div class="category-info">
+            <h3>Local Meetups & Events</h3>
+            <p>Planning to meet up? Discuss Georgetown events, local coffee shop trips, and convention prep!</p>
+          </div>
+          <div class="category-stats">19 Topics</div>
+        </div>
+      </section>
+
+      <section class="admin-box hidden" id="admin-thread-box">
+        <h3>Create a New Forum Thread</h3>
+        <select id="new-thread-category" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 15px; border: 3px solid var(--accent-pink); font-family: inherit; font-size: 16px;">
+          <option value="The Welcome Mat">The Welcome Mat</option>
+          <option value="General Chat & Daily Life">General Chat & Daily Life</option>
+          <option value="Support & Big Feelings">Support & Big Feelings</option>
+          <option value="Story Time & Creativity">Story Time & Creativity</option>
+          <option value="The Toy Box & Gaming">The Toy Box & Gaming</option>
+          <option value="Local Meetups & Events">Local Meetups & Events</option>
+        </select>
+        <input type="text" id="new-thread-title" placeholder="Thread Title...">
+        <textarea id="new-thread-content" placeholder="Kick off the conversation..."></textarea>
+        <button onclick="createThread()">Post Thread!</button>
+      </section>
+
+      <section id="forum-feed"></section>
+    </div>
+
+    <aside class="forum-sidebar">
+      <h3 style="margin-top: 0;">Search Forums</h3>
+      <input type="text" id="forum-search-input" class="search-bar" placeholder="Search threads..." oninput="handleForumSearch()">
       
-      <div class="forum-category">
-        <div class="category-info">
-          <h3>The Welcome Mat</h3>
-          <p>Say hi, introduce yourself, and meet your new friends!</p>
-        </div>
-        <div class="category-stats">12 Topics</div>
+      <h3 style="margin-top: 30px; border-bottom: 3px solid var(--accent-pink); padding-bottom: 5px;">Recent Activity</h3>
+      <div id="recent-threads-list">
+        <p>Loading recent posts...</p>
       </div>
-      <div class="forum-category">
-        <div class="category-info">
-          <h3>General Chat & Daily Life</h3>
-          <p>Discuss your day, grab a coffee, and chat about whatever is on your mind.</p>
-        </div>
-        <div class="category-stats">85 Topics</div>
-      </div>
-      <div class="forum-category">
-        <div class="category-info">
-          <h3>Support & Big Feelings</h3>
-          <p>A safe, supportive space to talk through tough days and seek advice.</p>
-        </div>
-        <div class="category-stats">42 Topics</div>
-      </div>
-      <div class="forum-category">
-        <div class="category-info">
-          <h3>Story Time & Creativity</h3>
-          <p>Share your creative writing, fiction stories, and artistic projects!</p>
-        </div>
-        <div class="category-stats">28 Topics</div>
-      </div>
-      <div class="forum-category">
-        <div class="category-info">
-          <h3>The Toy Box & Gaming</h3>
-          <p>Talk about your favorite video games, web dev projects, and toy collecting!</p>
-        </div>
-        <div class="category-stats">56 Topics</div>
-      </div>
-      <div class="forum-category">
-        <div class="category-info">
-          <h3>Local Meetups & Events</h3>
-          <p>Planning to meet up? Discuss Georgetown events, local coffee shop trips, and convention prep!</p>
-        </div>
-        <div class="category-stats">19 Topics</div>
-      </div>
-    </section>
+    </aside>
 
-    <section class="admin-box hidden" id="admin-thread-box">
-      <h3>Create a New Forum Thread</h3>
-      <select id="new-thread-category" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 15px; border: 3px solid var(--accent-pink); font-family: inherit; font-size: 16px;">
-        <option value="The Welcome Mat">The Welcome Mat</option>
-        <option value="General Chat & Daily Life">General Chat & Daily Life</option>
-        <option value="Support & Big Feelings">Support & Big Feelings</option>
-        <option value="Story Time & Creativity">Story Time & Creativity</option>
-        <option value="The Toy Box & Gaming">The Toy Box & Gaming</option>
-        <option value="Local Meetups & Events">Local Meetups & Events</option>
-      </select>
-      <input type="text" id="new-thread-title" placeholder="Thread Title...">
-      <textarea id="new-thread-content" placeholder="Kick off the conversation..."></textarea>
-      <button onclick="createThread()">Post Thread!</button>
-    </section>
-
-    <section id="forum-feed"></section>
   </main>
   <script src="app.js"></script>
 </body>
