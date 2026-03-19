@@ -10,16 +10,15 @@
 }
 
 [data-theme="dark"] {
-  --primary-bg: #1e1b4b; /* Deep Night Sky */
-  --accent-pink: #f472b6; /* Glowing Bubblegum */
-  --sky-blue: #2dd4bf; /* Glowing Teal */
-  --bubbly-yellow: #fde047; /* Bright Star */
-  --dark-text: #f8fafc; /* Soft White */
-  --card-bg: #312e81; /* Deep Purple Card */
-  --comment-bg: #3730a3; /* Lighter Purple Inner Box */
+  --primary-bg: #1e1b4b; 
+  --accent-pink: #f472b6; 
+  --sky-blue: #2dd4bf; 
+  --bubbly-yellow: #fde047; 
+  --dark-text: #f8fafc; 
+  --card-bg: #312e81; 
+  --comment-bg: #3730a3; 
 }
 
-/* Smooth fading when toggling themes */
 body, .admin-box, .blog-card, .embed-box, .forum-category, .comment-section, .forum-sidebar, .modal-content, input, textarea, select {
   transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
 }
@@ -55,7 +54,7 @@ h1, h2, h3 { margin-top: 0; }
 .hidden { display: none; }
 
 main {
-  max-width: 800px;
+  max-width: 1100px;
   width: 100%;
 }
 
@@ -85,7 +84,7 @@ input, textarea, select {
 
 button {
   background-color: var(--sky-blue);
-  color: #555; /* Keep button text dark for contrast */
+  color: #555; 
   border: 3px solid var(--dark-text);
   border-radius: 30px;
   padding: 10px 20px;
@@ -110,7 +109,7 @@ button:hover { filter: brightness(0.9); }
   border: 3px solid var(--dark-text);
   margin-bottom: 10px;
   box-shadow: 3px 3px 0px var(--dark-text);
-  color: #555; /* Force bubble text dark for readability against custom colors */
+  color: #555; 
 }
 
 .contact-card { text-align: center; }
