@@ -3,6 +3,31 @@ let currentUser = JSON.parse(localStorage.getItem('bubbly_user')) || null;
 let isLoginMode = false;
 let editingPostId = null;
 
+// --- NEW: Theme Logic ---
+function initTheme() {
+  const savedTheme = localStorage.getItem('bubbly_theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeButton(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  localStorage.setItem('bubbly_theme', newTheme);
+  updateThemeButton(newTheme);
+}
+
+function updateThemeButton(theme) {
+  const themeBtn = document.getElementById('btn-theme');
+  if (themeBtn) {
+    themeBtn.innerText = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+  }
+}
+
+// Fire the theme checker immediately!
+initTheme();
+
 // --- Initialize Page ---
 updateUserUI();
 loadPosts();

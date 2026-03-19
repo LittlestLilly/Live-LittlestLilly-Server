@@ -5,6 +5,23 @@
   --bubbly-yellow: #FFF380;
   --font-main: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
   --dark-text: #555;
+  --card-bg: white;
+  --comment-bg: #f9f9f9;
+}
+
+[data-theme="dark"] {
+  --primary-bg: #1e1b4b; /* Deep Night Sky */
+  --accent-pink: #f472b6; /* Glowing Bubblegum */
+  --sky-blue: #2dd4bf; /* Glowing Teal */
+  --bubbly-yellow: #fde047; /* Bright Star */
+  --dark-text: #f8fafc; /* Soft White */
+  --card-bg: #312e81; /* Deep Purple Card */
+  --comment-bg: #3730a3; /* Lighter Purple Inner Box */
+}
+
+/* Smooth fading when toggling themes */
+body, .admin-box, .blog-card, .embed-box, .forum-category, .comment-section, .forum-sidebar, .modal-content, input, textarea, select {
+  transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
 }
 
 body {
@@ -43,7 +60,7 @@ main {
 }
 
 .admin-box, .blog-card {
-  background: white;
+  background: var(--card-bg);
   border: 5px solid var(--accent-pink);
   border-radius: 30px;
   padding: 20px;
@@ -53,9 +70,11 @@ main {
 
 .admin-box { border-color: var(--sky-blue); box-shadow: 8px 8px 0px var(--bubbly-yellow); }
 
-input, textarea {
+input, textarea, select {
   width: 100%;
   box-sizing: border-box;
+  background-color: var(--card-bg);
+  color: var(--dark-text);
   border: 3px solid var(--accent-pink);
   border-radius: 15px;
   padding: 10px;
@@ -66,6 +85,7 @@ input, textarea {
 
 button {
   background-color: var(--sky-blue);
+  color: #555; /* Keep button text dark for contrast */
   border: 3px solid var(--dark-text);
   border-radius: 30px;
   padding: 10px 20px;
@@ -77,7 +97,7 @@ button {
 button:hover { filter: brightness(0.9); }
 
 .comment-section {
-  background: #f9f9f9;
+  background: var(--comment-bg);
   border-radius: 20px;
   padding: 15px;
   margin-top: 15px;
@@ -90,6 +110,7 @@ button:hover { filter: brightness(0.9); }
   border: 3px solid var(--dark-text);
   margin-bottom: 10px;
   box-shadow: 3px 3px 0px var(--dark-text);
+  color: #555; /* Force bubble text dark for readability against custom colors */
 }
 
 .contact-card { text-align: center; }
@@ -118,7 +139,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 
 .bubbly-nav a {
   background-color: var(--accent-pink);
-  color: var(--dark-text);
+  color: #555;
   text-decoration: none;
   padding: 12px 25px;
   border-radius: 30px;
@@ -144,7 +165,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 .embed-box {
   flex: 1;
   min-width: 350px; 
-  background: white;
+  background: var(--card-bg);
   border: 4px solid var(--sky-blue);
   border-radius: 20px;
   padding: 15px;
@@ -154,7 +175,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 .modal {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(85, 85, 85, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -208,7 +229,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 .forum-category {
   display: flex;
   align-items: center;
-  background-color: #f9f9f9;
+  background: var(--comment-bg);
   border: 4px dashed var(--accent-pink);
   border-radius: 20px;
   padding: 15px;
@@ -219,7 +240,7 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
 
 .forum-category:hover {
   transform: scale(1.02);
-  background-color: white;
+  background: var(--card-bg);
   border-color: var(--sky-blue);
 }
 
@@ -250,13 +271,15 @@ hr { border: 2px dashed var(--sky-blue); margin: 20px 0; }
   padding: 5px 15px;
   border-radius: 20px;
   border: 2px solid var(--dark-text);
+  color: #555;
   font-weight: bold;
   font-size: 0.9rem;
   box-shadow: 2px 2px 0px var(--dark-text);
 }
-/* --- NEW: Forum Layout & Sidebar Styles --- */
+
+/* --- Forum Layout & Sidebar Styles --- */
 main.forum-layout {
-  max-width: 1100px; /* Widened to give the sidebar room */
+  max-width: 1100px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -265,24 +288,26 @@ main.forum-layout {
 
 .forum-main {
   flex: 3;
-  min-width: 0; /* Prevents long text from breaking the flex container */
+  min-width: 0;
 }
 
 .forum-sidebar {
   flex: 1;
   min-width: 250px;
-  background: white;
+  background: var(--card-bg);
   border: 5px solid var(--accent-pink);
   border-radius: 30px;
   padding: 20px;
   box-shadow: 8px 8px 0px var(--sky-blue);
-  position: sticky; /* Makes it scroll beautifully with the page! */
+  position: sticky;
   top: 20px;
 }
 
 .search-bar {
   width: 100%;
   box-sizing: border-box;
+  background-color: var(--card-bg);
+  color: var(--dark-text);
   border: 3px solid var(--sky-blue);
   border-radius: 15px;
   padding: 10px;
@@ -291,13 +316,7 @@ main.forum-layout {
   margin-bottom: 10px;
 }
 
-/* Mobile Responsiveness */
 @media (max-width: 768px) {
-  main.forum-layout {
-    flex-direction: column;
-  }
-  .forum-sidebar {
-    width: 100%;
-    box-sizing: border-box;
-  }
+  main.forum-layout { flex-direction: column; }
+  .forum-sidebar { width: 100%; box-sizing: border-box; }
 }
