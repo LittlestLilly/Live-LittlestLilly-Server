@@ -194,7 +194,7 @@ if ($action === 'comments' && $method === 'DELETE') {
     writeData($commentsFile, $comments); echo json_encode(["message" => "Comment vanished!"]); exit;
 }
 
-// --- 3. Forum Data ---
+// --- 3. Forum Data (UPDATED FOR USERS) ---
 if ($action === 'threads' && $method === 'GET') {
     $threads = readData($threadsFile);
     $replies = readData($threadRepliesFile);
@@ -207,18 +207,49 @@ if ($action === 'threads' && $method === 'GET') {
     echo json_encode($feed); exit;
 }
 
+// Any logged in user can now POST a thread
 if ($action === 'threads' && $method === 'POST') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
     $threads = readData($threadsFile);
     $newThread = [ "id" => time(), "category" => $input['category'], "title" => $input['title'], "content" => $input['content'], "author" => $_SESSION['user']['username'] ];
     $threads[] = $newThread;
     writeData($threadsFile, $threads); http_response_code(201); echo json_encode($newThread); exit;
 }
 
+// Admins OR Authors can EDIT threads
+if ($action === 'threads' && $method === 'PUT') {
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
+    $threads = readData($threadsFile);
+    $threadId = (int)$input['id'];
+    
+    foreach ($threads as &$t) {
+        if ($t['id'] === $threadId) {
+            if ($_SESSION['user']['role'] !== 'admin' && $t['author'] !== $_SESSION['user']['username']) {
+                http_response_code(403); exit; 
+            }
+            if (isset($input['title'])) $t['title'] = $input['title'];
+            if (isset($input['content'])) $t['content'] = $input['content'];
+            if (isset($input['category'])) $t['category'] = $input['category'];
+            break;
+        }
+    }
+    writeData($threadsFile, $threads); echo json_encode(["message" => "Thread updated!"]); exit;
+}
+
+// Admins OR Authors can DELETE threads
 if ($action === 'threads' && $method === 'DELETE') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
     $threads = readData($threadsFile);
     $idToDelete = (int)$_GET['id'];
+    
+    $canDelete = false;
+    foreach ($threads as $t) {
+        if ($t['id'] === $idToDelete && ($_SESSION['user']['role'] === 'admin' || $t['author'] === $_SESSION['user']['username'])) {
+            $canDelete = true; break;
+        }
+    }
+    if (!$canDelete) { http_response_code(403); exit; }
+
     $threads = array_values(array_filter($threads, function($t) use ($idToDelete) { return $t['id'] !== $idToDelete; }));
     writeData($threadsFile, $threads);
     
@@ -239,10 +270,38 @@ if ($action === 'thread_replies' && $method === 'POST') {
     writeData($threadRepliesFile, $replies); http_response_code(201); echo json_encode($newReply); exit;
 }
 
+// Admins OR Authors can EDIT replies
+if ($action === 'thread_replies' && $method === 'PUT') {
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
+    $replies = readData($threadRepliesFile);
+    $replyId = (int)$input['id'];
+    
+    foreach ($replies as &$r) {
+        if ($r['id'] === $replyId) {
+            if ($_SESSION['user']['role'] !== 'admin' && $r['username'] !== $_SESSION['user']['username']) {
+                http_response_code(403); exit;
+            }
+            if (isset($input['text'])) $r['text'] = $input['text'];
+            break;
+        }
+    }
+    writeData($threadRepliesFile, $replies); echo json_encode(["message" => "Reply updated!"]); exit;
+}
+
+// Admins OR Authors can DELETE replies
 if ($action === 'thread_replies' && $method === 'DELETE') {
-    if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') { http_response_code(403); exit; }
+    if (!isset($_SESSION['user'])) { http_response_code(401); exit; }
     $replies = readData($threadRepliesFile);
     $idToDelete = (int)$_GET['id'];
+    
+    $canDelete = false;
+    foreach ($replies as $r) {
+        if ($r['id'] === $idToDelete && ($_SESSION['user']['role'] === 'admin' || $r['username'] === $_SESSION['user']['username'])) {
+            $canDelete = true; break;
+        }
+    }
+    if (!$canDelete) { http_response_code(403); exit; }
+
     $replies = array_values(array_filter($replies, function($r) use ($idToDelete) { return $r['id'] !== $idToDelete; }));
     writeData($threadRepliesFile, $replies); echo json_encode(["message" => "Reply vanished!"]); exit;
 }

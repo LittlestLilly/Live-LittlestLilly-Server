@@ -3,6 +3,11 @@ let currentUser = JSON.parse(localStorage.getItem('bubbly_user')) || null;
 let isLoginMode = false;
 let editingPostId = null;
 
+// New Forum Edit Trackers
+let editingThreadId = null;
+let editingReplyId = null;
+let currentThreadsData = [];
+
 // --- NEW: Theme Logic ---
 function initTheme() {
   const savedTheme = localStorage.getItem('bubbly_theme') || 'light';
@@ -47,7 +52,7 @@ function updateUserUI() {
   const btnLogin = document.getElementById('btn-show-login');
   const btnProfile = document.getElementById('btn-profile');
   const btnLogout = document.getElementById('btn-logout');
-  const adminThreadBox = document.getElementById('admin-thread-box');
+  const threadBox = document.getElementById('thread-creation-box');
   const colorPicker = document.getElementById('profile-color-picker');
 
   if (currentUser) {
@@ -58,16 +63,14 @@ function updateUserUI() {
     
     if (colorPicker && currentUser.color) colorPicker.value = currentUser.color;
     
-    if (adminThreadBox) {
-        if (currentUser.role === 'admin') adminThreadBox.classList.remove('hidden');
-        else adminThreadBox.classList.add('hidden');
-    }
+    // Un-hide the forum thread creation box for ANY logged in user!
+    if (threadBox) threadBox.classList.remove('hidden');
   } else {
     welcomeText.innerText = `Hello, Guest!`;
     btnLogin.classList.remove('hidden');
     btnProfile.classList.add('hidden');
     btnLogout.classList.add('hidden');
-    if (adminThreadBox) adminThreadBox.classList.add('hidden');
+    if (threadBox) threadBox.classList.add('hidden');
   }
 }
 
@@ -263,6 +266,7 @@ async function loadThreads(searchQuery = '') {
 
   const res = await fetch('api.php?action=threads');
   let threads = await res.json();
+  currentThreadsData = threads; // Save to global variable for editing
   
   // Populate the top 5 recent threads in the sidebar
   if (recentBox) {
@@ -296,16 +300,27 @@ async function loadThreads(searchQuery = '') {
 
   threads.forEach(thread => {
     let repliesHTML = thread.replies.map(r => {
-      const deleteBtn = (currentUser && currentUser.role === 'admin') ? `<button class="delete-btn" onclick="deleteThreadReply(${r.id})">Delete</button>` : '';
-      return `<div class="bubble" style="background-color: ${r.color}">${deleteBtn}<strong>${r.username}:</strong> ${r.text}</div>`;
+      // Check if user is Admin OR the Original Author
+      const canEditReply = currentUser && (currentUser.role === 'admin' || currentUser.username === r.username);
+      const replyControls = canEditReply ? `
+        <button class="delete-btn" onclick="deleteThreadReply(${r.id})" style="margin-left: 5px;">Delete</button>
+        <button class="delete-btn" onclick="editThreadReply(${r.id}, ${thread.id}, '${r.text.replace(/'/g, "\\'")}')" style="background-color: var(--sky-blue); color: #555;">Edit</button>
+      ` : '';
+      return `<div class="bubble" style="background-color: ${r.color}">${replyControls}<strong>${r.username}:</strong> ${r.text}</div>`;
     }).join('');
 
-    const deleteThreadBtn = (currentUser && currentUser.role === 'admin') 
-      ? `<button class="delete-btn" onclick="deleteThread(${thread.id})">Delete Thread</button>` : '';
+    // Check if user is Admin OR the Original Author
+    const canEditThread = currentUser && (currentUser.role === 'admin' || currentUser.username === thread.author);
+    const threadControls = canEditThread ? `
+      <div style="float: right;">
+        <button class="tiny-btn" onclick="editThread(${thread.id})">Edit Thread</button>
+        <button class="tiny-btn delete-btn" onclick="deleteThread(${thread.id})" style="float: none;">Delete</button>
+      </div>
+    ` : '';
 
     newHTML += `
     <article class="blog-card" id="thread-${thread.id}" style="border-color: var(--sky-blue);">
-      ${deleteThreadBtn}
+      ${threadControls}
       <small style="color: var(--accent-pink); font-weight: bold; font-size: 1.1em;">${thread.category}</small>
       <h2 style="margin-top: 5px;">${thread.title}</h2>
       <p>${thread.content}</p>
@@ -316,7 +331,7 @@ async function loadThreads(searchQuery = '') {
         <div id="thread-replies-${thread.id}">${repliesHTML}</div>
         <div style="display: flex; gap: 10px; margin-top: 10px;">
           <input type="text" id="thread-reply-text-${thread.id}" placeholder="Join the conversation...">
-          <button onclick="postThreadReply(${thread.id})">Reply</button>
+          <button id="thread-reply-btn-${thread.id}" onclick="postThreadReply(${thread.id})">Reply</button>
         </div>
       </div>
     </article>`;
@@ -325,14 +340,34 @@ async function loadThreads(searchQuery = '') {
   if (feed.innerHTML !== newHTML) feed.innerHTML = newHTML;
 }
 
+function editThread(threadId) {
+  const t = currentThreadsData.find(x => x.id === threadId);
+  if (!t) return;
+  document.getElementById('new-thread-category').value = t.category;
+  document.getElementById('new-thread-title').value = t.title;
+  document.getElementById('new-thread-content').value = t.content;
+  
+  editingThreadId = threadId;
+  document.getElementById('thread-submit-btn').innerText = "Update Thread!";
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 async function createThread() {
-  if (!currentUser || currentUser.role !== 'admin') return alert("Only admins can create threads!");
+  if (!currentUser) return alert("Please log in to participate!");
   const category = document.getElementById('new-thread-category').value;
   const title = document.getElementById('new-thread-title').value;
   const content = document.getElementById('new-thread-content').value;
   if (!title || !content) return alert("Don't forget the title and content!");
 
-  await fetch('api.php?action=threads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category, title, content }) });
+  if (editingThreadId) {
+    await fetch('api.php?action=threads', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editingThreadId, category, title, content }) });
+    editingThreadId = null;
+    const btn = document.getElementById('thread-submit-btn');
+    if(btn) btn.innerText = "Post Thread!";
+  } else {
+    await fetch('api.php?action=threads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category, title, content }) });
+  }
+
   document.getElementById('new-thread-title').value = '';
   document.getElementById('new-thread-content').value = '';
   
@@ -348,12 +383,24 @@ async function deleteThread(threadId) {
   loadThreads(query);
 }
 
+function editThreadReply(replyId, threadId, currentText) {
+  document.getElementById(`thread-reply-text-${threadId}`).value = currentText;
+  document.getElementById(`thread-reply-btn-${threadId}`).innerText = 'Update';
+  editingReplyId = replyId;
+}
+
 async function postThreadReply(threadId) {
   if (!currentUser) return alert("Please log in to reply!");
   const text = document.getElementById(`thread-reply-text-${threadId}`).value;
   if (!text) return;
-  await fetch('api.php?action=thread_replies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, text }) });
-  
+
+  if (editingReplyId) {
+      await fetch('api.php?action=thread_replies', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: editingReplyId, text }) });
+      editingReplyId = null;
+  } else {
+      await fetch('api.php?action=thread_replies', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ threadId, text }) });
+  }
+
   const query = document.getElementById('forum-search-input') ? document.getElementById('forum-search-input').value : '';
   loadThreads(query); 
 }

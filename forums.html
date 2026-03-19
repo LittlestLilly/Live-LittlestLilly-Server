@@ -100,8 +100,8 @@
         </div>
       </section>
 
-      <section class="admin-box hidden" id="admin-thread-box">
-        <h3>Create a New Forum Thread</h3>
+      <section class="admin-box hidden" id="thread-creation-box">
+        <h3>Start a Conversation</h3>
         <select id="new-thread-category" style="width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 15px; border: 3px solid var(--accent-pink); font-family: inherit; font-size: 16px;">
           <option value="The Welcome Mat">The Welcome Mat</option>
           <option value="General Chat & Daily Life">General Chat & Daily Life</option>
@@ -112,7 +112,7 @@
         </select>
         <input type="text" id="new-thread-title" placeholder="Thread Title...">
         <textarea id="new-thread-content" placeholder="Kick off the conversation..."></textarea>
-        <button onclick="createThread()">Post Thread!</button>
+        <button id="thread-submit-btn" onclick="createThread()">Post Thread!</button>
       </section>
 
       <section id="forum-feed"></section>
