@@ -4,28 +4,30 @@
   <meta charset="UTF-8">
   <title>Contact Lilly</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
   <header>
-    <h1>Let's Connect! 💖</h1>
+    <h1>Let's Connect!</h1>
     <nav class="bubbly-nav">
-      <a href="index.html">🏠 Home</a>
-      <a href="blog.html">📝 All Posts</a>
-      <a href="forums.html">💬 Forums</a>
-      <a href="contact.html">💌 Contact</a>
+      <a href="index.html">Home</a>
+      <a href="blog.html">All Posts</a>
+      <a href="forums.html">Forums</a>
+      <a href="contact.html">Contact</a>
     </nav>
-    <div id="user-status" style="margin-top: 15px; font-weight: bold;">
-      <span id="welcome-text">Hello, Guest! 🌟</span>
+    <div id="user-status" style="margin-top: 15px; margin-bottom: 30px; font-weight: bold;">
+      <span id="welcome-text">Hello, Guest!</span>
+      <button id="btn-theme" onclick="toggleTheme()" class="tiny-btn">🌙 Dark</button>
       <button id="btn-show-login" onclick="openAuthModal()" class="tiny-btn">Login / Join</button>
-      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">🎨 Profile</button>
-      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout 💨</button>
+      <button id="btn-profile" onclick="openProfileModal()" class="tiny-btn hidden">Profile</button>
+      <button id="btn-logout" onclick="logoutUser()" class="tiny-btn hidden">Logout</button>
     </div>
   </header>
 
   <div id="auth-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeAuthModal()">✖️</span>
-      <h2 id="auth-title">✨ Join the Magic! ✨</h2>
+      <span class="close-btn" onclick="closeAuthModal()">&times;</span>
+      <h2 id="auth-title">Join the Magic!</h2>
       <div id="auth-form-container">
         <input type="text" id="auth-username" placeholder="Pick a Username">
         <input type="password" id="auth-password" placeholder="Secret Password">
@@ -33,7 +35,7 @@
           <input type="email" id="auth-email" placeholder="Your Email">
           <input type="password" id="auth-secret" placeholder="Admin Code (Optional)">
         </div>
-        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go! 🚀</button>
+        <button onclick="submitAuth()" class="btn-send" style="width: 100%; margin-top: 10px;">Go!</button>
       </div>
       <p style="text-align: center; margin-top: 15px;"><a href="#" onclick="toggleAuthMode()" id="auth-toggle-link">Already a member? Log in!</a></p>
     </div>
@@ -41,24 +43,46 @@
 
   <div id="profile-modal" class="modal hidden">
     <div class="modal-content blog-card">
-      <span class="close-btn" onclick="closeProfileModal()">✖️</span>
-      <h2>🎨 Customize Profile 🎨</h2>
+      <span class="close-btn" onclick="closeProfileModal()">&times;</span>
+      <h2>Customize Profile</h2>
       <p>Pick a new color for your chat bubbles!</p>
       <input type="color" id="profile-color-picker" value="#FFF380" style="width: 100%; height: 50px; cursor: pointer; border-radius: 10px; border: 3px solid var(--dark-text);">
-      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color! ✨</button>
+      <button onclick="saveProfileColor()" class="btn-send" style="width: 100%; margin-top: 15px;">Save Magic Color!</button>
     </div>
   </div>
 
   <main>
     <section id="contact-lilly" class="blog-card contact-card">
-      <img src="avatar.png" alt="Lilly's Avatar" class="profile-avatar">
-      <h2>✨ Say Hi to Lilly! ✨</h2>
+      <img src="avatar.PNG" alt="Lilly's Avatar" class="profile-avatar">
+      <h2>Say Hi to Lilly!</h2>
       <div class="socials">
         <h3>Find me on:</h3>
-        <ul>
-          <li>📸 <a href="#">Instagram</a></li>
-          <li>🎮 <a href="#">Discord</a></li>
-          <li>🐦 <a href="#">Twitter/X</a></li>
+        <ul style="list-style: none; padding: 0;">
+          <li style="margin-bottom: 10px;">
+            <a href="https://linktr.ee/littlestlilly" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-linktree"></i> Linktree
+            </a>
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://bsky.app/profile/littlestlilly.com" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-bluesky"></i> BlueSky
+            </a>
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://t.me/LittlestLilly" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-telegram"></i> Telegram
+            </a>
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://www.tumblr.com/littlestlilly" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-tumblr"></i> Tumblr
+            </a>
+          </li>
+          <li style="margin-bottom: 10px;">
+            <a href="https://www.instagram.com/littlestlilly96?igsh=MTd4OHh0dm82MG52Yg%3D%3D&utm_source=qr" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-instagram"></i> Instagram
+            </a>
+          </li>
         </ul>
       </div>
       <hr />
@@ -67,7 +91,7 @@
         <input type="text" placeholder="Your Name" class="childish-input">
         <input type="email" placeholder="Your Email" class="childish-input">
         <textarea placeholder="Write your message here..."></textarea>
-        <button class="btn-send" onclick="alert('Magic Mail Sent! 💌')">Send Magic Mail! 💌</button>
+        <button class="btn-send" onclick="alert('Magic Mail Sent!')">Send Magic Mail!</button>
       </div>
     </section>
   </main>
